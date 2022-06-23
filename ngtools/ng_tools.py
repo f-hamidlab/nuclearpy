@@ -1596,9 +1596,6 @@ class NuclearGame_Segmentation(object):
             for ch in self.data["channels_info"]:
                 mask = self.data["files"][file]["masks"]
                 image = self.data["files"][file]['working_array'][self.data["channels_info"][ch]]
-                th_img, th = get_threshold_img(image, 'li')
-                th_img = image-th
-                th_img = th_img.clip(min=0)
                 for cell in self.data["files"][file]["nuclear_features"]["cellID"]:
                     if ch == self.data["dna_marker"]:
                         core, internal_ring, external_ring  = nucleus_layers(image,
