@@ -2,7 +2,7 @@ import ngtools.ng_tools as ngt
 
 
 def runNGS(dir, channels, dnamarker = "dapi",
-           informat = ".czi", segmethod = "cellpose", useGPU = False,
+           informat = ".czi", segmethod = "cellpose", useGPU = True,
            xscale = 0.454, yscale = 0.454, outdir = None, channelsinname = False):
     """
     A wrapper to perform segmentation on all images for each experiment
