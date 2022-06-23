@@ -12,17 +12,20 @@ from shutil import rmtree
 from setuptools import find_packages, setup, Command
 
 # Package meta-data.
-NAME = 'DLCprocess'
-DESCRIPTION = 'Processing of tracked data by DLC'
-URL = 'https://github.com/fursham-h/DLCprocess'
+NAME = 'NGtools'
+DESCRIPTION = 'Nuclei segmentation and analyzer'
+URL = 'https://github.com/fursham-h/ng_tools'
 EMAIL = 'fursham.hamid@kcl.ac.uk'
-AUTHOR = 'Fursham Hamid'
+AUTHOR = 'gabrielemilioherreraoropeza'
 REQUIRES_PYTHON = '>=3.7.0'
 VERSION = '0.1.0'
 
 # What packages are required for this module to be executed?
 REQUIRED = [
-    'pandas', 'matplotlib', 'numpy', 'seaborn'
+    'czifile','numpy','xmltodict','cellpose','matplotlib',
+    'scikit-image','plotly','tqdm','opencv-python','pandas',
+    'photutils','astropy','spatialentropy','scikit-learn',
+    'umap-learn','Pillow','scipy','seaborn'
 ]
 
 # What packages are optional?
