@@ -791,6 +791,98 @@ def _deepcell(image, scale):
 
     return mask
 
+def nucleus_layers_fast(image, mask, xscale):
+    image = image.copy()
+    mask = mask.copy()
+    mask_internal = mask.copy()
+    mask_external = mask.copy()
+    bin_mask = mask.copy()
+    bin_mask[bin_mask>0] = 1
+
+    iter_1um = round(1 / float(xscale))  # Number of iterations equivalent to 1um
+    kernel = np.ones((3, 3), np.uint8)
+
+    eroded_1um = cv2.erode(bin_mask, kernel, iterations=iter_1um)
+    mask_dilated_1um = cv2.dilate(mask_external, kernel, iterations=iter_1um)
+    dilated_1um = cv2.dilate(bin_mask, kernel, iterations=iter_1um)
+
+    eroded_1um = np.array(eroded_1um)
+    dilated_1um = np.array(dilated_1um)
+
+    internal = bin_mask - eroded_1um
+    mask_internal[internal==0] = 0
+    internal_props = regionprops(mask_internal, intensity_image=image)
+    internal_avg_int = [ceil(internal_props[n]['intensity_mean']) for n in range(len(internal_props))]
+    internal_total_int = [np.sum(internal_props[n]['image_intensity']) for n in range(len(internal_props))]
+
+    external = dilated_1um - bin_mask
+    mask_dilated_1um[external == 0] = 0
+    external_props = regionprops(mask_dilated_1um, intensity_image=image)
+    external_avg_int = [ceil(external_props[n]['intensity_mean']) for n in range(len(external_props))]
+    external_total_int = [np.sum(external_props[n]['image_intensity']) for n in range(len(external_props))]
+
+    # get core
+    mask_props = regionprops(mask, intensity_image=image)
+    total_int = [np.sum(mask_props[n]['image_intensity']) for n in range(len(mask_props))]
+    area_0 = [ceil(mask_props[n]['area']) for n in range(len(mask_props))]
+
+    core_avg_int = []
+    core_total_int = []
+    kernel = np.ones((3, 3), np.uint16)
+
+    # ## testing, to speeed up identifiying core mask
+    # to_erode = np.array([True]*len(area_0))
+    # to_erode_index = np.array(list(range(1, len(area_0)+1)))
+    # area_after = area_0.copy()
+    # area_before = [0]*len(area_0)
+    # core_mask = mask.copy()
+    #
+    # while any(to_erode):
+    #     to_erode_mask = core_mask.copy()
+    #     to_erode_mask[np.isin(to_erode_mask,to_erode_index[to_erode], invert=True)] = 0
+    #     eroded_mask = cv2.erode(to_erode_mask, kernel, iterations=1)
+    #
+    #
+
+    for cell in range(len(area_0)):
+        bin_mask = np.zeros(image.shape)
+        bin_mask[mask == (cell+1)] = 1
+        bin_mask = np.uint16(bin_mask)
+        a0 = area_0[cell]
+        aN = a0
+        prev_area_n = None
+        while a0/ 2 < aN:
+            if aN == prev_area_n:
+                break
+            bin_mask = cv2.erode(bin_mask, kernel, iterations=1)
+            itereprops = regionprops(bin_mask, intensity_image=image)
+            prev_area_n = aN
+            aN = itereprops[0]['area']
+        core_avg_int.append(ceil(itereprops[0]['intensity_mean']))
+        core_total_int.append(np.sum(itereprops[0]['image_intensity']))
+
+
+    #while any(np.divide(area_0, 2) < area_n):
+    #    if area_n == prev_area_n:
+    #        break
+    #    iter_bin_mask = cv2.erode(iter_bin_mask, kernel, iterations = 1)
+    #    itereprops = regionprops(iter_bin_mask, intensity_image = image)
+    #    prev_area_n = area_n
+    #    area_n = [ceil(itereprops[n]['area']) for n in range(len(itereprops))]
+
+    #core = iter_bin_mask
+    #core_props = regionprops(core, intensity_image=image)
+    #core_avg_int = [ceil(core_props[n]['intensity_mean']) for n in range(len(core_props))]
+    #core_total_int = [np.sum(core_props[n]['image_intensity']) for n in range(len(core_props))]
+
+
+
+
+    return(total_int, core_avg_int, core_total_int, internal_avg_int, internal_total_int, external_avg_int, external_total_int)
+
+
+
+
 
 def nucleus_layers(image, mask, cellID, xscale):
     """
@@ -1596,24 +1688,23 @@ class NuclearGame_Segmentation(object):
             for ch in self.data["channels_info"]:
                 mask = self.data["files"][file]["masks"]
                 image = self.data["files"][file]['working_array'][self.data["channels_info"][ch]]
-                for cell in self.data["files"][file]["nuclear_features"]["cellID"]:
-                    if ch == self.data["dna_marker"]:
-                        core, internal_ring, external_ring  = nucleus_layers(image,
-                                                                             mask,
-                                                                             cellID = cell,
-                                                                             xscale = self.data["files"][file]['metadata']['XScale'])
+                if ch == self.data["dna_marker"]:
+                    out_nuclear_layers = nucleus_layers_fast(image, mask,
+                                                             xscale = self.data["files"][file]['metadata']['XScale'])
+                    self.data["files"][file]["nuclear_features"][f"avg_intensity_core_{ch}"] = out_nuclear_layers[1]
+                    self.data["files"][file]["nuclear_features"][f"avg_intensity_internal_ring_{ch}"] = out_nuclear_layers[3]
+                    self.data["files"][file]["nuclear_features"][f"avg_intensity_external_ring_{ch}"] = out_nuclear_layers[5]
+                    self.data["files"][file]["nuclear_features"][f"total_intensity_{ch}"] = out_nuclear_layers[0]
+                    self.data["files"][file]["nuclear_features"][f"total_intensity_core_{ch}"] = out_nuclear_layers[2]
+                    self.data["files"][file]["nuclear_features"][f"total_intensity_internal_ring_{ch}"] = out_nuclear_layers[4]
+                    self.data["files"][file]["nuclear_features"][f"total_intensity_external_ring_{ch}"] = out_nuclear_layers[6]
 
-                        self.data["files"][file]["nuclear_features"][f"avg_intensity_core_{ch}"].append(find_avg_intensity(image, core, cellID = cell))
-                        self.data["files"][file]["nuclear_features"][f"avg_intensity_internal_ring_{ch}"].append(find_avg_intensity(image, internal_ring, cellID = cell))
-                        self.data["files"][file]["nuclear_features"][f"avg_intensity_external_ring_{ch}"].append(find_avg_intensity(image, external_ring, cellID = cell))
-                        self.data["files"][file]["nuclear_features"][f"total_intensity_{ch}"].append(find_sum_intensity(image, mask, cellID = cell))
-                        self.data["files"][file]["nuclear_features"][f"total_intensity_core_{ch}"].append(find_sum_intensity(image, core, cellID = cell))
-                        self.data["files"][file]["nuclear_features"][f"total_intensity_internal_ring_{ch}"].append(find_sum_intensity(image, internal_ring, cellID = cell))
-                        self.data["files"][file]["nuclear_features"][f"total_intensity_external_ring_{ch}"].append(find_sum_intensity(image, external_ring, cellID = cell))
-                    else:
-                        self.data["files"][file]["nuclear_features"][f"avg_intensity_{ch}"].append(find_avg_intensity(image, mask, cellID = cell))
-                        self.data["files"][file]["nuclear_features"][f"total_intensity_{ch}"].append(find_sum_intensity(image, mask, cellID = cell))
-
+                else:
+                    cellprops = regionprops(mask, intensity_image=image)
+                    avg_intensities = [ceil(cellprops[n]['intensity_mean']) for n in range(len(cellprops))]
+                    total_intensties = [np.sum(cellprops[n]['image_intensity']) for n in range(len(cellprops))]
+                    self.data["files"][file]["nuclear_features"][f"avg_intensity_{ch}"] = avg_intensities
+                    self.data["files"][file]["nuclear_features"][f"total_intensity_{ch}"] = total_intensties
 
             channels = [ch for ch in self.data["channels_info"] if ch != self.data["dna_marker"]]
 
