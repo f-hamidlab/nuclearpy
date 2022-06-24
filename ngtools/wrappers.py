@@ -1,4 +1,4 @@
-import ngtools.ng_tools as ngt
+import ngtools.segmentation as ngt
 
 
 def runNGS(dir, channels, dnamarker = "dapi",
