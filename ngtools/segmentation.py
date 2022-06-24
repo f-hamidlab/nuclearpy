@@ -701,36 +701,66 @@ def nucleus_layers_fast(image, mask, xscale):
     core_total_int = []
     kernel = np.ones((3, 3), np.uint16)
 
-    # ## testing, to speeed up identifiying core mask
-    # to_erode = np.array([True]*len(area_0))
-    # to_erode_index = np.array(list(range(1, len(area_0)+1)))
-    # area_after = area_0.copy()
-    # area_before = [0]*len(area_0)
-    # core_mask = mask.copy()
-    #
-    # while any(to_erode):
-    #     to_erode_mask = core_mask.copy()
-    #     to_erode_mask[np.isin(to_erode_mask,to_erode_index[to_erode], invert=True)] = 0
-    #     eroded_mask = cv2.erode(to_erode_mask, kernel, iterations=1)
-    #
-    #
+    ## testing, to speeed up identifiying core mask
+    to_erode = np.array([True]*len(area_0))
+    to_erode_index = np.array(list(range(1, len(area_0)+1)))
+    area_after = area_0.copy()
+    core_mask = mask.copy()
 
-    for cell in range(len(area_0)):
-        bin_mask = np.zeros(image.shape)
-        bin_mask[mask == (cell+1)] = 1
-        bin_mask = np.uint16(bin_mask)
-        a0 = area_0[cell]
-        aN = a0
-        prev_area_n = None
-        while a0/ 2 < aN:
-            if aN == prev_area_n:
-                break
-            bin_mask = cv2.erode(bin_mask, kernel, iterations=1)
-            itereprops = regionprops(bin_mask, intensity_image=image)
-            prev_area_n = aN
-            aN = itereprops[0]['area']
-        core_avg_int.append(ceil(itereprops[0]['intensity_mean']))
-        core_total_int.append(np.sum(itereprops[0]['image_intensity']))
+    while any(to_erode):
+        # binarize core_mask
+        bin_core_mask = core_mask.copy()
+        bin_core_mask[bin_core_mask > 0] = 1
+
+        # erode binarized core mask and get the difference
+        eroded_bin_mask = np.array(cv2.erode(bin_core_mask, kernel, iterations=1))
+        diff_bin_core_mask = bin_core_mask - eroded_bin_mask
+
+        # convert binarized difference to labels
+        diff_core_mask = core_mask.copy()
+        diff_core_mask[diff_bin_core_mask == 0] = 0
+
+        # remove masks to be excluded
+        diff_core_mask[np.isin(diff_core_mask,to_erode_index[to_erode], invert=True)] = 0
+
+        # subtract difference from core mask
+        core_mask = core_mask - diff_core_mask
+
+        # get new core mask properties
+        core_mask_props = regionprops(core_mask, intensity_image=image)
+        area_before = area_after
+        area_after = [ceil(core_mask_props[n]['area']) for n in range(len(core_mask_props))]
+
+        to_erode = (np.array(area_after) != np.array(area_before))&(np.array(area_after) > np.array(area_0)/2)
+
+
+    core = core_mask
+    core_props = regionprops(core, intensity_image=image)
+    core_avg_int = [ceil(core_props[n]['intensity_mean']) for n in range(len(core_props))]
+    core_total_int = [np.sum(core_props[n]['image_intensity']) for n in range(len(core_props))]
+
+
+
+
+
+
+
+    # for cell in range(len(area_0)):
+    #     bin_mask = np.zeros(image.shape)
+    #     bin_mask[mask == (cell+1)] = 1
+    #     bin_mask = np.uint16(bin_mask)
+    #     a0 = area_0[cell]
+    #     aN = a0
+    #     prev_area_n = None
+    #     while a0/ 2 < aN:
+    #         if aN == prev_area_n:
+    #             break
+    #         bin_mask = cv2.erode(bin_mask, kernel, iterations=1)
+    #         itereprops = regionprops(bin_mask, intensity_image=image)
+    #         prev_area_n = aN
+    #         aN = itereprops[0]['area']
+    #     core_avg_int.append(ceil(itereprops[0]['intensity_mean']))
+    #     core_total_int.append(np.sum(itereprops[0]['image_intensity']))
 
 
     #while any(np.divide(area_0, 2) < area_n):
