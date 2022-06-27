@@ -34,7 +34,7 @@ from tqdm import tqdm
 import cv2
 import pandas as pd
 from photutils.detection import find_peaks
-from photutils.segmentation import detect_threshold, detect_sources, deblend_sources, SourceCatalog
+from photutils.segmentation import detect_threshold, detect_sources, SourceCatalog
 from photutils.background import Background2D
 from astropy.convolution import Gaussian2DKernel
 from astropy.stats import gaussian_fwhm_to_sigma
