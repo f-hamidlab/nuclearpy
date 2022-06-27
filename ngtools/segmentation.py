@@ -1126,6 +1126,7 @@ class NuclearGame_Segmentation(object):
                 n += 1
         os.makedirs(self.path_save, exist_ok=True)
 
+    # TODO: Combine get_file_name and read_files
     def get_file_name(self, _format = ".czi", getall = False):
         """
         Gets the file names in a given path.
