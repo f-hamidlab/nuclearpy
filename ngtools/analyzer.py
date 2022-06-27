@@ -35,6 +35,9 @@ from matplotlib_scalebar.scalebar import ScaleBar
 warnings.filterwarnings('ignore')
 sc.settings.verbosity = 3
 
+#############################################
+#     Functions & Classes | Segmentation    #
+#############################################
 
 def _log(txt, verbose=True):
     if verbose:
@@ -389,3 +392,24 @@ def import_ng_data(path):
     data = pd.concat(data_array, axis=0, ignore_index=True)
 
     return data
+
+
+class NuclearGame_Analyzer(object):
+
+    def __init__(self, exp_dir):
+        """
+        Start Nuclear Game.
+        Parameters
+        ----------
+        exp_dir : string
+            Is the path to the folder where all the microscope images that will be analysed
+            are found.
+
+        Returns
+        -------
+        None.
+
+        """
+
+        # create a dict with 3 slots
+        self.data = {"raw": import_ng_data(exp_dir), "data": "", "adata": ""}
