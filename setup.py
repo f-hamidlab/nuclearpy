@@ -25,7 +25,8 @@ REQUIRED = [
     'czifile','numpy','xmltodict','cellpose','matplotlib',
     'scikit-image','plotly','tqdm','opencv-python','pandas',
     'photutils','astropy','spatialentropy','scikit-learn',
-    'umap-learn','Pillow','scipy','seaborn'
+    'umap-learn','Pillow','scipy','seaborn', 'anndata','scanpy',
+    'statannotations', 'matplotlib_scalebar', 'leidenalg'
 ]
 
 # What packages are optional?
