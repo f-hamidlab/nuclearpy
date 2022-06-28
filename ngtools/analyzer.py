@@ -366,7 +366,7 @@ def centerDAPI(data, splitBy="experiment", nbins=100, showPlot=True):
     for k, v in modes_.items():
         dapi_norm[k] = dapi_reference / v
 
-    data["cntrd_avg_intensity_dapi"] = [row["avg_intensity_dapi"] * dapi_norm[row["experiment"]] for index, row in
+    data["avg_intensity_dapi"] = [row["avg_intensity_dapi"] * dapi_norm[row["experiment"]] for index, row in
                                   data.iterrows()]
 
     if showPlot:
