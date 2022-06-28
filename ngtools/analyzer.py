@@ -413,4 +413,6 @@ class NuclearGame_Analyzer(object):
         """
 
         # create a dict with 3 slots
-        self.data = {"raw": import_ng_data(exp_dir), "data": "", "adata": ""}
+        self.data = {"raw": import_ng_data(exp_dir), "norm": ""}
+        self.meta = ""
+        self.adata = ""
