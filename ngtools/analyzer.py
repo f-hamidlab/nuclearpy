@@ -11,10 +11,8 @@ Created on Mon Mar 15 20:52:32 2021
 
 import cv2
 import anndata
-import time
 import pandas as pd
 import os
-from os import listdir
 from os.path import isfile, join, isdir
 import statistics
 from tqdm import tqdm
@@ -23,10 +21,6 @@ import matplotlib.pyplot as plt
 import numpy as np
 import warnings
 import scanpy as sc
-from math import log10
-from skimage.filters import threshold_otsu, threshold_triangle
-from statannotations.Annotator import Annotator
-from skimage.filters import threshold_multiotsu
 from sklearn.preprocessing import StandardScaler, MinMaxScaler, MaxAbsScaler
 from PIL import Image, ImageEnhance
 import plotly.graph_objects as go
