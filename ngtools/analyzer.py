@@ -31,6 +31,7 @@ from sklearn.preprocessing import StandardScaler, MinMaxScaler, MaxAbsScaler
 from PIL import Image, ImageEnhance
 import plotly.graph_objects as go
 from matplotlib_scalebar.scalebar import ScaleBar
+import operator
 
 warnings.filterwarnings('ignore')
 sc.settings.verbosity = 3
