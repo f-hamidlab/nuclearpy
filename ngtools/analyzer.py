@@ -383,6 +383,7 @@ def import_ng_data(path):
         name = file.split("/")[-3]
         df = pd.read_csv(file, index_col=None, header=0)
         df["experiment"] = name
+        df["path2ong"] = file
         data_array.append(df)
     data = pd.concat(data_array, axis=0, ignore_index=True)
 
@@ -442,6 +443,11 @@ class NuclearGame_Analyzer(object):
         if channel == None:
             channel = "dapi"
         self.data['raw'] = find_SingleCells(self.data['raw'], byExperiment, nbins, spread, channel)
+
+    def showCell(self, order_by="areaNucleus", fig_height=15, fig_width=40, show_nucleus=True,
+                  contrast_red=3, contrast_green=3, contrast_blue=4, uniqID=False, channels=["var", "rfp", "beta3"]):
+        show_cell(self.data['raw'], order_by, fig_height, fig_width, show_nucleus, contrast_red,
+                  contrast_green, contrast_blue, uniqID, channels)
 
     def plotData(self, x, y, data_type = "raw", plot_type = "scatter",
                  hue = None, alpha = 1, x_trans = None, y_trans = None,
