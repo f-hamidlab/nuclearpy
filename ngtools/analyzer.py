@@ -416,3 +416,158 @@ class NuclearGame_Analyzer(object):
         self.data = {"raw": import_ng_data(exp_dir), "norm": ""}
         self.meta = ""
         self.adata = ""
+
+
+    def showdata(self, data_type = 'raw', vars = None):
+        dat = self.data[data_type]
+        if vars != None:
+            print(dat[vars])
+        else:
+            print(dat)
+
+    def colnames(self):
+        print(self.data['raw'].columns)
+
+    def count(self, vars):
+        dat = self.data['raw']
+        print(dat[vars].value_counts())
+
+    def dim(self):
+        print(self.data['raw'].shape)
+
+    def ncol(self):
+        print(self.data['raw'].shape[1])
+
+    def nrow(self):
+        print(self.data['raw'].shape[0])
+
+    def ctrDAPI(self, splitBy = "experiment", nbins = 100, showPlot = True):
+        self.data['raw'] = centerDAPI(self.data['raw'], splitBy, nbins, showPlot)
+
+    def findSingleCells(self, byExperiment = True, nbins = 100, spread = 0.4, channel = None):
+        if channel == None:
+            channel = "dapi"
+        self.data['raw'] = find_SingleCells(self.data['raw'], byExperiment, nbins, spread, channel)
+
+    def plotData(self, x, y, data_type = "raw", plot_type = "scatter",
+                 hue = None, alpha = 1, x_trans = None, y_trans = None,
+                 x_rot = None):
+        #fig, ax = plt.subplots(figsize=(6.4, 4.8))
+
+        if plot_type == "scatter":
+            fig = sns.scatterplot(data=self.data[data_type],
+                                 y=y,
+                                 x=x,
+                                 hue=hue,
+                                 alpha=alpha)
+        elif plot_type == "line":
+            fig = sns.lmplot(x=x,
+                       y=y,
+                       data=self.data[data_type],
+                       hue=hue,
+                       lowess=True,
+                       scatter=False
+                       )
+        elif plot_type == "violin":
+            fig = sns.violinplot(x = x,
+                                 y = y,
+                                 data = self.data[data_type],
+                                 palette = "Set3", bw = .2)
+        if x_trans != None:
+            fig.set(xscale=x_trans)
+        if y_trans != None:
+            fig.set(yscale=y_trans)
+        if x_rot != None:
+            plt.xticks(rotation=x_rot, ha="right")
+
+        plt.tight_layout()
+        plt.show()
+
+    def filterCells(self, feature, op, val):
+        data = self.data['raw'].copy()
+
+        ops = {'>': operator.gt,
+               '<': operator.lt,
+               '>=': operator.ge,
+               '<=': operator.le,
+               '==': operator.eq}
+
+        self.data['raw'] = data[ops[op](data[feature], val)]
+
+    def normIntensity(self, method = "mode", nbins = 100, verbose = False, hue = "experiment"):
+        normData, normMetadata = intensityNormalisation(self.data['raw'], method, nbins, verbose, hue)
+        self.data['norm'] = normData
+        self.meta = normMetadata
+
+    def buildAnnData(self, excluded_features = []):
+
+        to_drop = ['cellID', 'x_pos', 'y_pos', 'angle']
+        to_drop.extend(list(x for x in list(self.data['norm']) if x.endswith('_group')))
+        to_drop.extend(excluded_features)
+
+        # get a final list of features
+        dat = self.data['norm'].copy()
+        dat = dat.select_dtypes(include = ['float64','int64'])
+        dat = dat.drop(columns = to_drop)
+
+        # create adata
+        self.adata =  anndata.AnnData(
+            X = dat.values,
+            obs = pd.DataFrame(
+                dat.index.to_list(),
+                columns = ["cell_uniqID"],
+                index = [str(n) for n in dat.index.to_list()]
+                ),
+            var = pd.DataFrame(
+                dat.columns.to_list(),
+                columns = ["feature"],
+                index = [str(n) for n,c in enumerate(dat.columns)])
+            )
+        self.adata.var_names = self.adata.var["feature"].to_list()
+
+    def normAnnData(self):
+        self.adata.X = _normalise_data(self.adata.X)
+        sc.pp.scale(self.adata, max_value=10)
+
+    def findNeighbours(self, method = "umap", n = 30, use_rep = "X"):
+        sc.pp.neighbors(self.adata, n_neighbors=n, use_rep=use_rep, method=method)
+
+    def findClusters(self, method = "leiden", res = 0.6):
+        if method == "leiden":
+            sc.tl.leiden(self.adata, resolution = res)
+        elif method == "louvain":
+            sc.tl.louvain(self.adata, resolution=res)
+
+    def runDimReduc(self, method = "umap"):
+        if method == "umap":
+            sc.tl.umap(self.adata)
+        elif method == "diffmap":
+            sc.tl.diffmap(self.adata)
+
+    def plotDim(self, hue = None, method = "umap"):
+        fig, ax = plt.subplots(figsize=(4, 4))
+
+        if method == "umap":
+            sc.pl.umap(self.adata, color=hue, frameon=False, ax=ax, legend_loc="on data",
+                       size=30, dimensions = [0,1]
+                       )
+        elif method == "diffmap":
+            sc.pl.diffmap(self.adata, color=hue, frameon=False, ax=ax, legend_loc="on data",
+                       size=30, dimensions = [0,1]
+                       )
+
+        fig.tight_layout()
+        plt.show()
+
+    def runPT(self, root):
+        self.adata.uns['iroot'] = root
+        sc.tl.dpt(self.adata)
+
+
+
+
+
+
+
+
+
