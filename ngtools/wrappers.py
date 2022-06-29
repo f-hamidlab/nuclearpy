@@ -5,7 +5,7 @@ from os.path import splitext
 
 def runNGS(dir, channels, dnamarker="dapi",
            informat=".czi", segmethod="cellpose", useGPU=True,
-           xscale=0.454, yscale=0.454, outdir=None, channelsinname=False):
+           xscale=0.454, yscale=0.454, outdir=None, channelsinname=False, collate=False):
     """
     A wrapper to perform segmentation on all images for each experiment
 
