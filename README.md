@@ -15,7 +15,7 @@ mv ng_tools-main ng_tools   #drop branch name
 ```
 
 ## To install ngtools
-```python
+```bash
 cd ng_tools
 pip install .
 ```
