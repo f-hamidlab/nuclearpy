@@ -375,8 +375,7 @@ def centerDAPI(data, splitBy="experiment", nbins=100, showPlot=True):
     return data
 
 def import_ng_data(path):
-    files = [os.path.join(dp, f) for dp, dn, filenames in os.walk(path) for f in filenames if
-              os.path.splitext(f)[1] == '.csv']
+    files = [os.path.join(dp, f) for dp, dn, filenames in os.walk(path) for f in filenames if f == 'output.csv']
 
     data_array = []
     for file in files:
