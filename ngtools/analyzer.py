@@ -392,7 +392,7 @@ def import_ng_data(path):
 
 class NuclearGame_Analyzer(object):
 
-    def __init__(self, exp_dir):
+    def __init__(self, exp_dir=None, csv=None, ):
         """
         Start Nuclear Game.
         Parameters
@@ -407,9 +407,16 @@ class NuclearGame_Analyzer(object):
 
         """
 
-        # create a dict with 3 slots
-        self.data = {"raw": import_ng_data(exp_dir), "norm": ""}
-        self.meta = ""
+        if csv is not None:
+            dat=pd.read_csv(csv)
+            self.data = {"raw": dat, "norm": ""}
+
+            files = set(dat['path2ong'].to_list())
+            files = [txt.replace("output.csv","channels_info.json") for txt in files]
+            self.meta = {"channels": import_channels_data(files = files)}
+        else:
+            self.data = {"raw": import_ng_data(exp_dir), "norm": ""}
+            self.meta = {"channels": import_channels_data(exp_dir)}
         self.adata = ""
 
 
