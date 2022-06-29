@@ -3,9 +3,9 @@ from os import walk
 from os.path import splitext
 
 
-def runNGS(dir, channels, dnamarker = "dapi",
-           informat = ".czi", segmethod = "cellpose", useGPU = True,
-           xscale = 0.454, yscale = 0.454, outdir = None, channelsinname = False):
+def runNGS(dir, channels, dnamarker="dapi",
+           informat=".czi", segmethod="cellpose", useGPU=True,
+           xscale=0.454, yscale=0.454, outdir=None, channelsinname=False):
     """
     A wrapper to perform segmentation on all images for each experiment
 
@@ -51,25 +51,25 @@ def runNGS(dir, channels, dnamarker = "dapi",
     for thisdir in dirs:
         print(thisdir)
         try:
-            ngs = ngt.NuclearGame_Segmentation(join(path,thisdir), outdir)
+            ngs = ngt.NuclearGame_Segmentation(thisdir, outdir)
         except NotADirectoryError:
-            continue
+            print(f"Directory {thisdir} does not exists")
         except ValueError:
             print(f"Directory {thisdir} do not contain supported file formats.")
             continue
         if channelsinname:
             channels = thisdir.split("_")[1].split(",")
-        ngs.get_file_name(_format = informat, getall = True)
+        ngs.get_file_name(_format=informat, getall=True)
         ngs.read_files()
-        ngs.identify_channels(channels = channels, marker = dnamarker)
-        ngs.nuclear_segmentation(method = segmethod, diameter = 30, gamma_corr = True, gamma = 0.25, dc_scaleCorr = 1.9)
+        ngs.identify_channels(channels=channels, marker=dnamarker)
+        ngs.nuclear_segmentation(method=segmethod, diameter=30, gamma_corr=True, gamma=0.25, dc_scaleCorr=1.9,
+                                 GPU=useGPU)
         ngs.nuclear_features(xscale, yscale)
         ngs.add_nuclear_features()
-        ngs.find_dna_peaks(box_size = 10, zoom_box_size = 300)
-        ngs.find_dna_dots(zoom_box_size = 300)
-        ngs.spatial_entropy(d = 5, zoom_box_size = 300)
-        ngs.positive2marker(frac_covered = 0.7, thresh_method = "triangle")
-        ngs.assign_marker_class(n_class = 3)
+        ngs.find_dna_peaks(box_size=10, zoom_box_size=200)
+        ngs.find_dna_dots(zoom_box_size=200)
+        ngs.spatial_entropy(d=5, zoom_box_size=200)
+        ngs.markerGroup(n_groups=5, sample_size=10)
         ngs.saveArrays()
         ngs.saveChannelInfo()
-        ngs.export_csv(filename = "output.csv")
+        ngs.export_csv(filename="output.csv")
