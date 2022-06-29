@@ -413,7 +413,7 @@ class NuclearGame_Analyzer(object):
         self.adata = ""
 
 
-    def showdata(self, data_type = 'raw', vars = None):
+    def showData(self, data_type = 'raw', vars = None):
         dat = self.data[data_type]
         if vars != None:
             print(dat[vars])
