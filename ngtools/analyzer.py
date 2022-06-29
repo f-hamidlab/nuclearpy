@@ -451,11 +451,15 @@ class NuclearGame_Analyzer(object):
 
     def plotData(self, x, y, data_type = "raw", plot_type = "scatter",
                  hue = None, alpha = 1, x_trans = None, y_trans = None,
-                 x_rot = None):
+                 x_rot = None, shuffle=False):
         #fig, ax = plt.subplots(figsize=(6.4, 4.8))
 
+        dat = self.data[data_type].copy()
+        if shuffle:
+            dat = dat.sample(frac=1)
+
         if plot_type == "scatter":
-            fig = sns.scatterplot(data=self.data[data_type],
+            fig = sns.scatterplot(data=dat,
                                  y=y,
                                  x=x,
                                  hue=hue,
@@ -463,7 +467,7 @@ class NuclearGame_Analyzer(object):
         elif plot_type == "line":
             fig = sns.lmplot(x=x,
                        y=y,
-                       data=self.data[data_type],
+                       data=dat,
                        hue=hue,
                        lowess=True,
                        scatter=False
@@ -471,8 +475,8 @@ class NuclearGame_Analyzer(object):
         elif plot_type == "violin":
             fig = sns.violinplot(x = x,
                                  y = y,
-                                 data = self.data[data_type],
-                                 palette = "Set3", bw = .2)
+                                 data = dat,
+                                 palette = "Set3", bw = .2, hue = hue)
         if x_trans != None:
             fig.set(xscale=x_trans)
         if y_trans != None:
