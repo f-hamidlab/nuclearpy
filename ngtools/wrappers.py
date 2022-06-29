@@ -73,3 +73,16 @@ def runNGS(dir, channels, dnamarker="dapi",
         ngs.saveArrays()
         ngs.saveChannelInfo()
         ngs.export_csv(filename="output.csv")
+
+    if collate:
+        outdir=dir if outdir == None else outdir
+        csvs=[join(dp, f) for dp, dn, filenames in walk(outdir) for f in filenames if f == 'output.csv']
+        data_array = []
+        for file in csvs:
+            name = file.split("/")[-3]
+            df = pd.read_csv(file, index_col=None, header=0)
+            df["experiment"] = name
+            df["path2ong"] = file
+            data_array.append(df)
+        data = pd.concat(data_array, axis=0, ignore_index=True)
+        data.to_csv(join(outdir, "combined_output.csv"))
