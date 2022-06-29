@@ -135,22 +135,25 @@ def _normalise_data(X, method="standardscaler", copy=False):
 
 
 def show_cell(data, order_by="areaNucleus", fig_height=15, fig_width=40, show_nucleus=True,
-              contrast_red=3, contrast_green=3, contrast_blue=4, uniqID=False, channels=["var", "rfp", "beta3"]):
+              RGB_contrasts=[3,3,4], uniqID=False, channels=None, n = None, chinfo=None):
     df = data.copy()
 
-    # Ask for the number of cells to show
-    while True:
-        no_cells = input('\nEnter number of nuclei to show (any integer OR "all"): ')
-        try:
-            no_cells = int(no_cells)
-            break
-        except:
-            if isinstance(no_cells, str):
-                if no_cells.lower() == 'all':
-                    no_cells = len(df)
-                    break
-            else:
-                print('Ops! Invalid number format! Enter an integer or "all"')
+    # Ask for the number of cells to show if not provided
+    if n == None:
+        while True:
+            no_cells = input('\nEnter number of nuclei to show (any integer OR "all"): ')
+            try:
+                no_cells = int(no_cells)
+                break
+            except:
+                if isinstance(no_cells, str):
+                    if no_cells.lower() == 'all':
+                        no_cells = len(df)
+                        break
+                else:
+                    print('Ops! Invalid number format! Enter an integer or "all"')
+    else:
+        no_cells = n
 
     if len(df) == no_cells:
         print(f"\nShowing all cells ({len(df)}) in the selected area")
@@ -162,29 +165,31 @@ def show_cell(data, order_by="areaNucleus", fig_height=15, fig_width=40, show_nu
         no_cells = len(df)
         print('\nONLY ' + str(len(df)) + ' cells were found in the selected data')
 
+    # sample cells
     new_df = df.sample(n=no_cells)
 
-    # Get the names of the channels
-    dct_channels = {}
+    # get all available channels
+    all_ch = [list(chinfo[l].keys()) for l in chinfo]
+    all_ch = set(sum(all_ch, ["None"]))
+    if channels is None:
 
-    for ch in channels:
-        dct_channels[ch] = input(f'Show {ch} (y/n): ')
 
-    # Color of the channels
-    dct_colors = {}
+        # Ask for channels
+        dct_colors = {'red':"", 'green':"", 'blue':""}
+        for col in dct_colors:
+            val = ""
+            while val not in all_ch:
+                val = input(f'Input channel for {col} [{"/".join(all_ch)}] ')
+                print(f'Input "{val}" is not valid!') if val not in all_ch else "continue"
+            dct_colors[col] = val
+    else:
+        dct_colors = {k: v for k, v in channels.items() if v in all_ch}
+        if len(dct_colors) != len(channels):
+            dropped = set(channels.values()).difference(set(dct_colors.values()))
+            print(f'{len(dropped)} channel [{", ".join(dropped)}] not available and dropped')
 
-    for ch in dct_channels:
-        if dct_channels[ch].lower() == 'y':
-            while True:
-                try:
-                    dct_colors[ch] = input('Desired colour for {0} (red/green/blue): '.format(ch))
-                    if dct_colors[ch] == 'red' or dct_colors[ch] == 'green' or dct_colors[ch] == 'blue':
-                        break
-                    else:
-                        raise ValueError
-                except:
-                    print('Input color {0} is not valid!'.format(dct_colors[ch]))
-                    pass
+    dct_colors = {k: v for k, v in dct_colors.items() if v != "None"}
+
 
     # Generate the figure
     if no_cells <= 5:
@@ -224,27 +229,27 @@ def show_cell(data, order_by="areaNucleus", fig_height=15, fig_width=40, show_nu
         color_red = Image.fromarray(np.zeros((y, x, 3), dtype='uint8')).convert('L')
         color_green = Image.fromarray(np.zeros((y, x, 3), dtype='uint8')).convert('L')
         color_blue = Image.fromarray(np.zeros((y, x, 3), dtype='uint8')).convert('L')
-        for ch in dct_channels:
-            if dct_channels[ch].lower() == 'y':
-                channel = wk_array[channels.index(ch) + 1].copy()
-                channel = channel[cY_low:cY_high, cX_low:cX_high]
-                channel = cv2.normalize(channel, None, 0, 255, cv2.NORM_MINMAX, cv2.CV_8U)
-                RGB = np.array((*"RGB",))
-                if dct_colors[ch].lower() == 'red':
-                    color = np.multiply.outer(channel, RGB == 'R')
-                    color_red = Image.fromarray(color).convert('L')
-                    enhancer = ImageEnhance.Contrast(color_red)
-                    color_red = enhancer.enhance(contrast_red)
-                elif dct_colors[ch].lower() == 'green':
-                    color = np.multiply.outer(channel, RGB == 'G')
-                    color_green = Image.fromarray(color).convert('L')
-                    enhancer = ImageEnhance.Contrast(color_green)
-                    color_green = enhancer.enhance(contrast_green)
-                elif dct_colors[ch].lower() == 'blue':
-                    color = np.multiply.outer(channel, RGB == 'B')
-                    color_blue = Image.fromarray(color).convert('L')
-                    enhancer = ImageEnhance.Contrast(color_blue)
-                    color_blue = enhancer.enhance(contrast_blue)
+        img_chan = chinfo[row['experiment']]
+        for col,ch in dct_colors.items():
+            channel = wk_array[img_chan[ch] + 1].copy()
+            channel = channel[cY_low:cY_high, cX_low:cX_high]
+            channel = cv2.normalize(channel, None, 0, 255, cv2.NORM_MINMAX, cv2.CV_8U)
+            RGB = np.array((*"RGB",))
+            if col == 'red':
+                color = np.multiply.outer(channel, RGB == 'R')
+                color_red = Image.fromarray(color).convert('L')
+                enhancer = ImageEnhance.Contrast(color_red)
+                color_red = enhancer.enhance(RGB_contrasts[0])
+            elif col == 'green':
+                color = np.multiply.outer(channel, RGB == 'G')
+                color_green = Image.fromarray(color).convert('L')
+                enhancer = ImageEnhance.Contrast(color_green)
+                color_green = enhancer.enhance(RGB_contrasts[1])
+            elif col == 'blue':
+                color = np.multiply.outer(channel, RGB == 'B')
+                color_blue = Image.fromarray(color).convert('L')
+                enhancer = ImageEnhance.Contrast(color_blue)
+                color_blue = enhancer.enhance(RGB_contrasts[2])
         mrg = Image.merge("RGB", (color_red, color_green, color_blue))
         mrg = np.array(mrg, dtype='uint8')
         scalebar = ScaleBar(0.227, 'um', box_alpha=0, location="upper left", color="w")  # 1 pixel = 1um
@@ -463,10 +468,9 @@ class NuclearGame_Analyzer(object):
             channel = "dapi"
         self.data['raw'] = find_SingleCells(self.data['raw'], byExperiment, nbins, spread, channel)
 
-    def showCell(self, order_by="areaNucleus", fig_height=15, fig_width=40, show_nucleus=True,
-                  contrast_red=3, contrast_green=3, contrast_blue=4, uniqID=False, channels=["var", "rfp", "beta3"]):
-        show_cell(self.data['raw'], order_by, fig_height, fig_width, show_nucleus, contrast_red,
-                  contrast_green, contrast_blue, uniqID, channels)
+    def showCell(self, n=None, ch2show=None, order_by=None, fig_height=15, fig_width=40, show_nucleus=True,
+                 RGB_contrasts=[3,3,4], uniqID=False):
+        show_cell(self.data['raw'], order_by, fig_height, fig_width, show_nucleus, RGB_contrasts, uniqID, ch2show, n, self.meta['channels'])
 
     def plotData(self, x, y, data_type = "raw", plot_type = "scatter",
                  hue = None, alpha = 1, x_trans = None, y_trans = None,
