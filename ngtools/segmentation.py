@@ -1124,7 +1124,7 @@ class NuclearGame_Segmentation(object):
             while os.path.isdir(self.path_save):
                 self.path_save = join(outdir, f'out_ng ({n})/')
                 n += 1
-        os.makedirs(self.path_save, exist_ok=True)
+
 
     # TODO: Combine get_file_name and read_files
     def get_file_name(self, _format = ".czi", getall = False):
