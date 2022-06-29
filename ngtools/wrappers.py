@@ -1,4 +1,6 @@
 import ngtools.segmentation as ngt
+from os import walk
+from os.path import splitext
 
 
 def runNGS(dir, channels, dnamarker = "dapi",
