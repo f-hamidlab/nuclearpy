@@ -389,6 +389,19 @@ def import_ng_data(path):
 
     return data
 
+def import_channels_data(path=None, files=None):
+    if files is None:
+        files = [os.path.join(dp, f) for dp, dn, filenames in os.walk(path) for f in filenames if
+                 f == 'channels_info.json']
+
+    data_dict = {}
+    for file in files:
+        name = file.split("/")[-3]
+        with open(file) as json_file:
+            data_dict[name] = json.load(json_file)
+
+    return data_dict
+
 
 class NuclearGame_Analyzer(object):
 
