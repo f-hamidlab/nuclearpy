@@ -483,6 +483,12 @@ class NuclearGame_Analyzer(object):
         plt.tight_layout()
         plt.show()
 
+    def plotVarDist(self, vars = "all", data_type="raw"):
+        if vars == "all":
+            self.data[data_type].boxplot()
+        else:
+            self.data[data_type].boxplot(rot=45, column=vars)
+
     def filterCells(self, feature, op, val):
         data = self.data['raw'].copy()
 
