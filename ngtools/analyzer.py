@@ -416,12 +416,17 @@ class NuclearGame_Analyzer(object):
 
     def __init__(self, exp_dir=None, filename="output.csv", collated_csv=None, ):
         """
-        Start Nuclear Game.
+        Create an Analyzer object
         Parameters
         ----------
         exp_dir : string
-            Is the path to the folder where all the microscope images that will be analysed
-            are found.
+            Path to directory containing segmented output. Function will recursively import files named
+            "output.csv" [Default] and combine them.
+        csv : string
+            Optional- Path to collated CSV file. Useful when users have manually modified the collated output of
+            Segmentador and wish to use it instead.
+        filename : string
+            Name of CSV file exported from Segmentador. Only files with this name will be imported.
 
         Returns
         -------
