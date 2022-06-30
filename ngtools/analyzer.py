@@ -538,23 +538,24 @@ class NuclearGame_Analyzer(object):
         to_drop.extend(list(x for x in list(self.data['norm']) if x.endswith('_group')))
         to_drop.extend(excluded_features)
 
-        # get a final list of features
-        dat = self.data['norm'].copy()
-        dat = dat.select_dtypes(include = ['float64','int64'])
-        dat = dat.drop(columns = to_drop)
+        # get numerical var from data
+        dat_vars = self.data['norm'].copy()
+        dat_vars = dat_vars.select_dtypes(include=['float64', 'int64'])
+        dat_vars = dat_vars.drop(columns=to_drop)
+
+        # get obs data
+        dat_obs = self.data['norm'].copy()
+        dat_obs = dat_obs.drop(columns=dat_vars.columns)
+
 
         # create adata
         self.adata =  anndata.AnnData(
-            X = dat.values,
-            obs = pd.DataFrame(
-                dat.index.to_list(),
-                columns = ["cell_uniqID"],
-                index = [str(n) for n in dat.index.to_list()]
-                ),
+            X = dat_vars.values,
+            obs = dat_obs,
             var = pd.DataFrame(
-                dat.columns.to_list(),
+                dat_vars.columns.to_list(),
                 columns = ["feature"],
-                index = [str(n) for n,c in enumerate(dat.columns)])
+                index = [str(n) for n,c in enumerate(dat_vars.columns)])
             )
         self.adata.var_names = self.adata.var["feature"].to_list()
 
