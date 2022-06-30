@@ -539,7 +539,8 @@ class NuclearGame_Analyzer(object):
                 cells = data[eval(eval_expr)].index.to_list()
 
         self.data['raw'] = self.data['raw'].loc[cells]
-        self.data['norm'] = self.data['norm'].loc[cells]
+        if self.data['norm'] != "":
+            self.data['norm'] = self.data['norm'].loc[cells]
 
     def normIntensity(self, method = "mode", nbins = 100, verbose = False, hue = "experiment"):
         normData, normMetadata = intensityNormalisation(self.data['raw'], method, nbins, verbose, hue)
