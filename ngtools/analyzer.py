@@ -532,7 +532,7 @@ class NuclearGame_Analyzer(object):
         self.data['norm'] = normData
         self.meta = normMetadata
 
-    def buildAnnData(self, excluded_features = []):
+    def buildAData(self, excluded_features = []):
 
         to_drop = ['cellID', 'x_pos', 'y_pos', 'angle']
         to_drop.extend(list(x for x in list(self.data['norm']) if x.endswith('_group')))
@@ -558,7 +558,8 @@ class NuclearGame_Analyzer(object):
             )
         self.adata.var_names = self.adata.var["feature"].to_list()
 
-    def normAnnData(self):
+
+    def normAData(self):
         self.adata.X = _normalise_data(self.adata.X)
         sc.pp.scale(self.adata, max_value=10)
 
