@@ -379,8 +379,8 @@ def centerDAPI(data, splitBy="experiment", nbins=100, showPlot=True):
 
     return data
 
-def import_ng_data(path):
-    files = [os.path.join(dp, f) for dp, dn, filenames in os.walk(path) for f in filenames if f == 'output.csv']
+def import_ng_data(path, filename):
+    files = [os.path.join(dp, f) for dp, dn, filenames in os.walk(path) for f in filenames if f == filename]
 
     data_array = []
     for file in files:
@@ -414,7 +414,7 @@ def import_channels_data(path=None, files=None):
 
 class NuclearGame_Analyzer(object):
 
-    def __init__(self, exp_dir=None, csv=None, ):
+    def __init__(self, exp_dir=None, filename="output.csv", collated_csv=None, ):
         """
         Start Nuclear Game.
         Parameters
@@ -429,7 +429,7 @@ class NuclearGame_Analyzer(object):
 
         """
 
-        if csv is not None:
+        if collated_csv is not None:
             dat=pd.read_csv(csv)
             self.data = {"raw": dat, "norm": ""}
 
@@ -437,7 +437,7 @@ class NuclearGame_Analyzer(object):
             files = [txt.replace("output.csv","channels_info.json") for txt in files]
             self.meta = {"channels": import_channels_data(files = files)}
         else:
-            self.data = {"raw": import_ng_data(exp_dir), "norm": ""}
+            self.data = {"raw": import_ng_data(exp_dir, filename), "norm": ""}
             self.meta = {"channels": import_channels_data(exp_dir)}
         self.adata = ""
 
