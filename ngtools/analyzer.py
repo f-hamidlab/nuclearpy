@@ -521,16 +521,25 @@ class NuclearGame_Analyzer(object):
         else:
             self.data[data_type].boxplot(rot=45, column=vars)
 
-    def filterCells(self, feature, op, val):
-        data = self.data['raw'].copy()
+    def filterCells(self, expr = "", data_type = 'raw', cells = None):
 
-        ops = {'>': operator.gt,
-               '<': operator.lt,
-               '>=': operator.ge,
-               '<=': operator.le,
-               '==': operator.eq}
+        if expr != "":
+            data = self.data[data_type].copy()
+            if cells is not None:
+                print("`expr` and `cells` arguments given, using result from `expr` only")
+            if type(expr) == list:
+                len_expr = len(expr)
+                if len_expr == self.nrow():
+                    cells = data[expr].index.to_list()
+                else:
+                    raise Exception("TEST")
+            if type(expr) == str:
+                expr_split = expr.split()
+                eval_expr = "".join(["data['", expr_split[0], "']", expr_split[1], expr_split[2]])
+                cells = data[eval(eval_expr)].index.to_list()
 
-        self.data['raw'] = data[ops[op](data[feature], val)]
+        self.data['raw'] = self.data['raw'].loc[cells]
+        self.data['norm'] = self.data['norm'].loc[cells]
 
     def normIntensity(self, method = "mode", nbins = 100, verbose = False, hue = "experiment"):
         normData, normMetadata = intensityNormalisation(self.data['raw'], method, nbins, verbose, hue)
