@@ -1672,6 +1672,11 @@ class NuclearGame_Segmentation(object):
             round_peak_df = round_peak_df.drop_duplicates()
 
             merged_peak_df = peak_df.iloc[round_peak_df.index,]
+		# map coord to mask
+		# count number of of occurrences 
+		# create output list
+		# update list with counts 
+	    mapped_peaks = masks[merged_peak_df["x_peak"], merged_peak_df[["y_peak"]]] 
 
             
 
