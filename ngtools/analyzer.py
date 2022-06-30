@@ -564,6 +564,16 @@ class NuclearGame_Analyzer(object):
         self.adata.X = _normalise_data(self.adata.X)
         sc.pp.scale(self.adata, max_value=10)
 
+    def showAData(self):
+        print(self.adata)
+
+    def showADataVars(self):
+        print(self.adata.var_names.to_list())
+
+    def showADataObs(self):
+        print(self.adata.obs.columns.to_list())
+
+
     def findNeighbours(self, method = "umap", n = 30, use_rep = "X"):
         sc.pp.neighbors(self.adata, n_neighbors=n, use_rep=use_rep, method=method)
 
