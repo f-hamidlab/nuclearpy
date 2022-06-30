@@ -1646,6 +1646,44 @@ class NuclearGame_Segmentation(object):
 
             self.data["files"][file]["nuclear_features"]["dna_peaks"] = []
 
+            masks2 = self.data["files"][file]["masks"].copy()
+            masks2[masks2 > 0] = 1
+
+            nucleus2 = self.data["files"][file]['working_array'][
+                self.data["channels_info"][self.data["dna_marker"]]].copy()
+            nucleus2[masks2 != 1] = 0
+
+            masks3 = self.data["files"][file]["masks"].copy()
+            masks3[masks3 != 1] = 0
+            ignore_mask2 = np.zeros(masks3.shape)
+            ignore_mask2[masks3 == 0] = True
+            ignore_mask2[masks3 != 0] = False
+            ignore_mask2 = ignore_mask2.astype(bool)
+
+            bkg2 = Background2D(nucleus2, 3, mask=ignore_mask2)
+            th2 = detect_threshold(data=nucleus2, nsigma=0, mask_value=0, background=bkg2.background)
+            peak_tb2 = find_peaks(data=nucleus2, threshold=th2, mask=ignore_mask2, box_size=box_size)
+
+            peak_df = peak_tb.to_pandas()
+            peak_df['x_round'] = 10 * np.round(peak_df['x_peak'].to_numpy()/10)
+            peak_df['y_round'] = 10 * np.round(peak_df['y_peak'].to_numpy() / 10)
+
+            round_peak_df = peak_df[["x_round","y_round"]]
+            round_peak_df = round_peak_df.drop_duplicates()
+
+            merged_peak_df = peak_df.iloc[round_peak_df.index,]
+
+            
+
+
+            peak_df.groupby([peak_df.x_peak, peak_df.y_peak]).ngroup()
+
+            peak_df['x_start'] = peak_df['x_peak'] - 5
+            peak_df['x_end'] = peak_df['x_peak'] + 5
+            peak_df['y_start'] = peak_df['y_peak'] - 5
+            peak_df['y_end'] = peak_df['y_peak'] + 5
+
+
             for cell in self.data["files"][file]["nuclear_features"]["cellID"]:
 
                 _index = self.data["files"][file]["nuclear_features"]["cellID"].index(cell)
