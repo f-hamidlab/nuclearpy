@@ -391,6 +391,11 @@ def import_ng_data(path):
         data_array.append(df)
     data = pd.concat(data_array, axis=0, ignore_index=True)
 
+    unspaced_colnames = [name if not " " in name else name.replace(" ","") for name in data.columns]
+    if any(data.columns != unspaced_colnames):
+        print("Removing spaces from variable names")
+        data.colnames = unspaced_colnames
+
     return data
 
 def import_channels_data(path=None, files=None):
