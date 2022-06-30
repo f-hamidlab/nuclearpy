@@ -577,11 +577,17 @@ class NuclearGame_Analyzer(object):
     def findNeighbours(self, method = "umap", n = 30, use_rep = "X"):
         sc.pp.neighbors(self.adata, n_neighbors=n, use_rep=use_rep, method=method)
 
-    def findClusters(self, method = "leiden", res = 0.6):
+    def findClusters(self, method="leiden", res = 0.6, name = None):
         if method == "leiden":
             sc.tl.leiden(self.adata, resolution = res)
         elif method == "louvain":
             sc.tl.louvain(self.adata, resolution=res)
+
+        if name is None:
+            name = method
+
+        self.data['raw'][name] = self.adata.obs[method].to_list()
+        self.data['norm'][name] = self.adata.obs[method].to_list()
 
     def runDimReduc(self, method = "umap"):
         if method == "umap":
