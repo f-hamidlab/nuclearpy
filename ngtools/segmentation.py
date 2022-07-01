@@ -1862,7 +1862,12 @@ class NuclearGame_Segmentation(object):
 
 
 
-            pp = np.array([np.where(masks == id) for id in self.data["files"][file]["nuclear_features"]["cellID"]])
+            signal_coord = np.where(masks > 0)
+		# make df
+		# add cell ID info
+		# add intensity val
+		# rank per cell and group 
+		# calcc entropy, by list comp or pandas 
             pp_val = np.array([nucleus[x[0],x[1]] for x in pp])
 
 
