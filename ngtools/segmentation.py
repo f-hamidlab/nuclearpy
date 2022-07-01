@@ -1855,6 +1855,17 @@ class NuclearGame_Segmentation(object):
 
             self.data["files"][file]["nuclear_features"]["spatial_entropy"] = []
 
+            masks = self.data["files"][file]["masks"].copy()
+            nucleus = self.data["files"][file]['working_array'][
+                self.data["channels_info"][self.data["dna_marker"]]].copy()
+            nucleus[masks == 0] = 0
+
+
+
+            pp = np.array([np.where(masks == id) for id in self.data["files"][file]["nuclear_features"]["cellID"]])
+            pp_val = np.array([nucleus[x[0],x[1]] for x in pp])
+
+
             for cell in self.data["files"][file]["nuclear_features"]["cellID"]:
 
                 _index = self.data["files"][file]["nuclear_features"]["cellID"].index(cell)
