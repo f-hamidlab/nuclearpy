@@ -1646,23 +1646,21 @@ class NuclearGame_Segmentation(object):
 
             self.data["files"][file]["nuclear_features"]["dna_peaks"] = []
 
-            masks2 = self.data["files"][file]["masks"].copy()
-            masks2[masks2 > 0] = 1
+            masks = self.data["files"][file]["masks"].copy()
 
-            nucleus2 = self.data["files"][file]['working_array'][
+            nucleus = self.data["files"][file]['working_array'][
                 self.data["channels_info"][self.data["dna_marker"]]].copy()
-            nucleus2[masks2 != 1] = 0
+            nucleus[masks == 0] = 0
 
-            masks3 = self.data["files"][file]["masks"].copy()
-            masks3[masks3 != 1] = 0
-            ignore_mask2 = np.zeros(masks3.shape)
-            ignore_mask2[masks3 == 0] = True
-            ignore_mask2[masks3 != 0] = False
-            ignore_mask2 = ignore_mask2.astype(bool)
 
-            bkg2 = Background2D(nucleus2, 3, mask=ignore_mask2)
-            th2 = detect_threshold(data=nucleus2, nsigma=0, mask_value=0, background=bkg2.background)
-            peak_tb2 = find_peaks(data=nucleus2, threshold=th2, mask=ignore_mask2, box_size=box_size)
+            ignore_mask = np.zeros(masks.shape)
+            ignore_mask[masks == 0] = True
+            ignore_mask[masks != 0] = False
+            ignore_mask = ignore_mask.astype(bool)
+
+            bkg = Background2D(nucleus, 3, mask=ignore_mask)
+            th = detect_threshold(data=nucleus, nsigma=0, mask_value=0, background=bkg.background)
+            peak_tb = find_peaks(data=nucleus, threshold=th, mask=ignore_mask, box_size=box_size)
 
             peak_df = peak_tb.to_pandas()
             peak_df['x_round'] = 10 * np.round(peak_df['x_peak'].to_numpy()/10)
@@ -1672,95 +1670,15 @@ class NuclearGame_Segmentation(object):
             round_peak_df = round_peak_df.drop_duplicates()
 
             merged_peak_df = peak_df.iloc[round_peak_df.index,]
-		# map coord to mask
-		# count number of of occurrences 
-		# create output list
-		# update list with counts 
-	    mapped_peaks = masks[merged_peak_df["x_peak"], merged_peak_df[["y_peak"]]] 
+            mapped_peaks = masks[merged_peak_df["y_peak"].to_list(), merged_peak_df["x_peak"].to_list()]
+            unique, counts = np.unique(mapped_peaks, return_counts=True)
+            outlist = np.zeros(len(self.data["files"][file]["nuclear_features"]["cellID"]))
+            unique = unique - 1
+            outlist[unique] = counts
 
-            
-
-
-            peak_df.groupby([peak_df.x_peak, peak_df.y_peak]).ngroup()
-
-            peak_df['x_start'] = peak_df['x_peak'] - 5
-            peak_df['x_end'] = peak_df['x_peak'] + 5
-            peak_df['y_start'] = peak_df['y_peak'] - 5
-            peak_df['y_end'] = peak_df['y_peak'] + 5
+            self.data["files"][file]["nuclear_features"]["dna_peaks"] = outlist
 
 
-            for cell in self.data["files"][file]["nuclear_features"]["cellID"]:
-
-                _index = self.data["files"][file]["nuclear_features"]["cellID"].index(cell)
-
-                masks = self.data["files"][file]["masks"].copy()
-                masks[masks != cell] = 0
-                masks[masks == cell] = 1
-
-                nucleus = self.data["files"][file]['working_array'][self.data["channels_info"][self.data["dna_marker"]]].copy()
-                nucleus[masks != 1] = 0
-
-                if zoom_box_size != None:
-                    half_zoom_box = int(zoom_box_size / 2)
-                    cY = int(self.data["files"][file]["nuclear_features"]["y_pos"][_index])
-                    cX = int(self.data["files"][file]["nuclear_features"]["x_pos"][_index])
-                    cY_low = cY - half_zoom_box
-                    cY_high = cY + half_zoom_box
-                    cX_low = cX - half_zoom_box
-                    cX_high = cX + half_zoom_box
-                    if (cY-half_zoom_box) < 0:
-                        cY_low = 0
-                    if (cY+half_zoom_box) > len(nucleus):
-                        cY_high = len(nucleus)
-                    if (cX-half_zoom_box) < 0:
-                        cX_low = 0
-                    if (cX+half_zoom_box) > len(nucleus[0]):
-                        cX_high = len(nucleus[0])
-                    nucleus = nucleus[cY_low:cY_high, cX_low:cX_high]
-                    masks = masks[cY_low:cY_high, cX_low:cX_high]
-
-                ignore_mask = np.zeros(masks.shape)
-                ignore_mask[masks == 0] = True
-                ignore_mask[masks != 0] = False
-                ignore_mask = ignore_mask.astype(bool)
-
-                try:
-                    bkg = Background2D(nucleus, 3, mask = ignore_mask)
-
-                    th = detect_threshold(data = nucleus, nsigma = 0, mask_value = 0, background = bkg.background)
-
-                    peak_tb = find_peaks(data = nucleus, threshold = th, mask = ignore_mask, box_size = box_size)
-
-                    try:
-                        peak_df = peak_tb.to_pandas()
-                        lst_remove = []
-
-                        for index, row in peak_df.iterrows():
-                            x_up = row["x_peak"] + 5
-                            x_down = row["x_peak"] - 5
-                            y_up = row["y_peak"] + 5
-                            y_down = row["y_peak"] -5
-                            temp_df = peak_df[((peak_df["x_peak"] > x_down) & (peak_df["x_peak"] < x_up)) & ((peak_df["y_peak"] > y_down) & (peak_df["y_peak"] < y_up))]
-                            if len(temp_df) > 1:
-                                sorted_df = temp_df.sort_values(by = "peak_value", ascending = False)
-                                flag = True
-                                for index2, row2 in sorted_df.iterrows():
-                                    if flag == True:
-                                        flag = False
-                                        pass
-                                    elif flag == False:
-                                        lst_remove.append(index2)
-
-                        peak_df_fltd = peak_df.drop(lst_remove)
-
-                        no = len(peak_df_fltd)
-                        self.data["files"][file]["nuclear_features"]["dna_peaks"].append(no)
-
-                    except:
-                        self.data["files"][file]["nuclear_features"]["dna_peaks"].append(0)
-
-                except:
-                    self.data["files"][file]["nuclear_features"]["dna_peaks"].append(np.nan)
 
 
     def find_dna_dots(self, zoom_box_size = 300):
