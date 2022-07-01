@@ -1429,7 +1429,7 @@ class NuclearGame_Segmentation(object):
                     self.data["files"][file]["nuclear_features"]["x_pos"].append(round(cX))
                     self.data["files"][file]["nuclear_features"]["y_pos"].append(round(cY))
 
-                    self.data["files"][file]["nuclear_features"]["angle"].append(p["orientation"])
+                    self.data["files"][file]["nuclear_features"]["angle"].append(round(p["orientation"],3))
 
                     self.data["files"][file]["nuclear_features"]["imageID"].append(file)
 
@@ -1797,6 +1797,7 @@ class NuclearGame_Segmentation(object):
                         n_dots = len(dots_df)
                         self.data["files"][file]["nuclear_features"]["dna_dots"].append(n_dots)
                         median_size_dots = dots_df["area"].median() * (self.data["files"][file]['metadata']['XScale'] * self.data["files"][file]['metadata']['YScale'])
+                        median_size_dots = round(median_size_dots, 3)
                         self.data["files"][file]["nuclear_features"]["dna_dots_size_median"].append(median_size_dots)
                 except:
                     self.data["files"][file]["nuclear_features"]["dna_dots_size_median"].append(np.nan)
