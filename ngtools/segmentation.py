@@ -1429,7 +1429,7 @@ class NuclearGame_Segmentation(object):
                     self.data["files"][file]["nuclear_features"]["x_pos"].append(round(cX))
                     self.data["files"][file]["nuclear_features"]["y_pos"].append(round(cY))
 
-                    self.data["files"][file]["nuclear_features"]["angle"].append(p["orientation"])
+                    self.data["files"][file]["nuclear_features"]["angle"].append(round(p["orientation"],3))
 
                     self.data["files"][file]["nuclear_features"]["imageID"].append(file)
 
@@ -2026,7 +2026,7 @@ class NuclearGame_Segmentation(object):
         return lst_fts
 
 
-    def export_csv(self, filename = "raw_output.csv"):
+    def export_csv(self, filename = "output.csv"):
         """
         Export data generated as CSV
 
