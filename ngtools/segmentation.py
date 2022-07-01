@@ -1680,14 +1680,14 @@ class NuclearGame_Segmentation(object):
                 self.data["channels_info"][self.data["dna_marker"]]].copy()
             nucleus[masks == 0] = 0
 
+            th = self.data["files"][file]["th_array"]
+
 
             ignore_mask = np.zeros(masks.shape)
             ignore_mask[masks == 0] = True
             ignore_mask[masks != 0] = False
             ignore_mask = ignore_mask.astype(bool)
 
-            bkg = Background2D(nucleus, 3, mask=ignore_mask)
-            th = detect_threshold(data=nucleus, nsigma=0, mask_value=0, background=bkg.background, mask=ignore_mask)
             peak_tb = find_peaks(data=nucleus, threshold=th, mask=ignore_mask, box_size=box_size)
 
             peak_df = peak_tb.to_pandas()
@@ -1736,13 +1736,12 @@ class NuclearGame_Segmentation(object):
                 self.data["channels_info"][self.data["dna_marker"]]].copy()
             nucleus[masks == 0] = 0
 
+            th = self.data["files"][file]["th_array"]
+
             ignore_mask = np.zeros(masks.shape)
             ignore_mask[masks == 0] = True
             ignore_mask[masks != 0] = False
             ignore_mask = ignore_mask.astype(bool)
-
-            bkg = Background2D(nucleus, 3, mask=ignore_mask)
-            th = detect_threshold(data=nucleus, nsigma=0, mask_value=0, background=bkg.background,mask=ignore_mask)
 
             sigma = 3.0 * gaussian_fwhm_to_sigma
 
