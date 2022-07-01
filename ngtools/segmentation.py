@@ -1702,67 +1702,108 @@ class NuclearGame_Segmentation(object):
             self.data["files"][file]["nuclear_features"]["dna_dots"] = []
             self.data["files"][file]["nuclear_features"]["dna_dots_size_median"] = []
 
-            for cell in self.data["files"][file]["nuclear_features"]["cellID"]:
+            masks = self.data["files"][file]["masks"].copy()
 
-                _index = self.data["files"][file]["nuclear_features"]["cellID"].index(cell)
+            nucleus = self.data["files"][file]['working_array'][
+                self.data["channels_info"][self.data["dna_marker"]]].copy()
+            nucleus[masks == 0] = 0
 
-                masks = self.data["files"][file]["masks"].copy()
-                masks[masks != cell] = 0
-                masks[masks == cell] = 1
+            ignore_mask = np.zeros(masks.shape)
+            ignore_mask[masks == 0] = True
+            ignore_mask[masks != 0] = False
+            ignore_mask = ignore_mask.astype(bool)
 
-                nucleus = self.data["files"][file]['working_array'][self.data["channels_info"][self.data["dna_marker"]]].copy()
-                nucleus[masks != 1] = 0
+            bkg = Background2D(nucleus, 3, mask=ignore_mask)
+            th = detect_threshold(data=nucleus, nsigma=0, mask_value=0, background=bkg.background)
 
-                if zoom_box_size != None:
-                    half_zoom_box = int(zoom_box_size / 2)
-                    cY = int(self.data["files"][file]["nuclear_features"]["y_pos"][_index])
-                    cX = int(self.data["files"][file]["nuclear_features"]["x_pos"][_index])
-                    cY_low = cY - half_zoom_box
-                    cY_high = cY + half_zoom_box
-                    cX_low = cX - half_zoom_box
-                    cX_high = cX + half_zoom_box
-                    if (cY-half_zoom_box) < 0:
-                        cY_low = 0
-                    if (cY+half_zoom_box) > len(nucleus):
-                        cY_high = len(nucleus)
-                    if (cX-half_zoom_box) < 0:
-                        cX_low = 0
-                    if (cX+half_zoom_box) > len(nucleus[0]):
-                        cX_high = len(nucleus[0])
-                    nucleus = nucleus[cY_low:cY_high, cX_low:cX_high]
-                    masks = masks[cY_low:cY_high, cX_low:cX_high]
+            sigma = 3.0 * gaussian_fwhm_to_sigma
 
-                ignore_mask = np.zeros(masks.shape)
-                ignore_mask[masks == 0] = True
-                ignore_mask[masks != 0] = False
-                ignore_mask = ignore_mask.astype(bool)
+            kernel = Gaussian2DKernel(sigma, x_size=3, y_size=3)
+            kernel.normalize()
+            segm = detect_sources(data=nucleus, threshold=th, npixels=5, kernel=kernel, mask=ignore_mask)
 
-                try:
-                    bkg = Background2D(nucleus, 3, mask = ignore_mask)
+            cat = SourceCatalog(masks, segm)
+            columns = ['label', 'xcentroid', 'ycentroid', 'area']
+            dots_df = cat.to_table(columns).to_pandas()
+            dots_df['xcentroid'] = dots_df[['xcentroid']].astype(int)
+            dots_df['ycentroid'] = dots_df['ycentroid'].astype(int)
 
-                    th = detect_threshold(data = nucleus, nsigma = 0.5, mask_value = 0, background = bkg.background)
+            mapped_peaks = masks[dots_df["ycentroid"].to_list(), dots_df["xcentroid"].to_list()]
+            unique, counts = np.unique(mapped_peaks, return_counts=True)
+            outlist = np.zeros(len(self.data["files"][file]["nuclear_features"]["cellID"]))
+            unique = unique - 1
+            outlist[unique] = counts
+            self.data["files"][file]["nuclear_features"]["dna_dots"] = outlist
 
-                    sigma = 3.0 * gaussian_fwhm_to_sigma
+            dots_df["cell"] = mapped_peaks-1
+            median_area = dots_df.groupby('cell')['area'].median()
 
-                    kernel = Gaussian2DKernel(sigma, x_size=3, y_size=3)
-                    kernel.normalize()
-                    segm = detect_sources(data = nucleus, threshold = th, npixels = 5, kernel = kernel)
+            area_outlist = np.zeros(len(self.data["files"][file]["nuclear_features"]["cellID"]))
+            area_outlist[median_area.index.to_numpy().astype(int)] = median_area.values
+            self.data["files"][file]["nuclear_features"]["dna_dots_size_median"] = area_outlist
 
-                    if segm is None:
-                        self.data["files"][file]["nuclear_features"]["dna_dots"].append(0)
-                        self.data["files"][file]["nuclear_features"]["dna_dots_size_median"].append(0)
-                    else:
-                        cat = SourceCatalog(nucleus, segm)
-                        columns = ['label', 'xcentroid', 'ycentroid', 'area']
-                        dots_df = cat.to_table(columns).to_pandas()
-                        n_dots = len(dots_df)
-                        self.data["files"][file]["nuclear_features"]["dna_dots"].append(n_dots)
-                        median_size_dots = dots_df["area"].median() * (self.data["files"][file]['metadata']['XScale'] * self.data["files"][file]['metadata']['YScale'])
-                        self.data["files"][file]["nuclear_features"]["dna_dots_size_median"].append(median_size_dots)
-                except:
-                    self.data["files"][file]["nuclear_features"]["dna_dots_size_median"].append(np.nan)
-                    self.data["files"][file]["nuclear_features"]["dna_dots"].append(np.nan)
-
+            #
+            # for cell in self.data["files"][file]["nuclear_features"]["cellID"]:
+            #
+            #     _index = self.data["files"][file]["nuclear_features"]["cellID"].index(cell)
+            #
+            #     masks = self.data["files"][file]["masks"].copy()
+            #     masks[masks != cell] = 0
+            #     masks[masks == cell] = 1
+            #
+            #     nucleus = self.data["files"][file]['working_array'][self.data["channels_info"][self.data["dna_marker"]]].copy()
+            #     nucleus[masks != 1] = 0
+            #
+            #     if zoom_box_size != None:
+            #         half_zoom_box = int(zoom_box_size / 2)
+            #         cY = int(self.data["files"][file]["nuclear_features"]["y_pos"][_index])
+            #         cX = int(self.data["files"][file]["nuclear_features"]["x_pos"][_index])
+            #         cY_low = cY - half_zoom_box
+            #         cY_high = cY + half_zoom_box
+            #         cX_low = cX - half_zoom_box
+            #         cX_high = cX + half_zoom_box
+            #         if (cY-half_zoom_box) < 0:
+            #             cY_low = 0
+            #         if (cY+half_zoom_box) > len(nucleus):
+            #             cY_high = len(nucleus)
+            #         if (cX-half_zoom_box) < 0:
+            #             cX_low = 0
+            #         if (cX+half_zoom_box) > len(nucleus[0]):
+            #             cX_high = len(nucleus[0])
+            #         nucleus = nucleus[cY_low:cY_high, cX_low:cX_high]
+            #         masks = masks[cY_low:cY_high, cX_low:cX_high]
+            #
+            #     ignore_mask = np.zeros(masks.shape)
+            #     ignore_mask[masks == 0] = True
+            #     ignore_mask[masks != 0] = False
+            #     ignore_mask = ignore_mask.astype(bool)
+            #
+            #     try:
+            #         bkg = Background2D(nucleus, 3, mask = ignore_mask)
+            #
+            #         th = detect_threshold(data = nucleus, nsigma = 0.5, mask_value = 0, background = bkg.background)
+            #
+            #         sigma = 3.0 * gaussian_fwhm_to_sigma
+            #
+            #         kernel = Gaussian2DKernel(sigma, x_size=3, y_size=3)
+            #         kernel.normalize()
+            #         segm = detect_sources(data = nucleus, threshold = th, npixels = 5, kernel = kernel)
+            #
+            #         if segm is None:
+            #             self.data["files"][file]["nuclear_features"]["dna_dots"].append(0)
+            #             self.data["files"][file]["nuclear_features"]["dna_dots_size_median"].append(0)
+            #         else:
+            #             cat = SourceCatalog(nucleus, segm)
+            #             columns = ['label', 'xcentroid', 'ycentroid', 'area']
+            #             dots_df = cat.to_table(columns).to_pandas()
+            #             n_dots = len(dots_df)
+            #             self.data["files"][file]["nuclear_features"]["dna_dots"].append(n_dots)
+            #             median_size_dots = dots_df["area"].median() * (self.data["files"][file]['metadata']['XScale'] * self.data["files"][file]['metadata']['YScale'])
+            #             self.data["files"][file]["nuclear_features"]["dna_dots_size_median"].append(median_size_dots)
+            #     except:
+            #         self.data["files"][file]["nuclear_features"]["dna_dots_size_median"].append(np.nan)
+            #         self.data["files"][file]["nuclear_features"]["dna_dots"].append(np.nan)
+            #
 
     def spatial_entropy(self, d = 5, zoom_box_size = 300):
         """
