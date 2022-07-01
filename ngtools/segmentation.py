@@ -1069,6 +1069,21 @@ def normalize99(img):
 def findsubsets(s, n):
     return list(itertools.combinations(s, n))
 
+def get_th_array(masks, nucleus):
+
+    masks=masks.copy()
+    nucleus=nucleus.copy()
+    nucleus[masks == 0] = 0
+
+    ignore_mask = np.zeros(masks.shape)
+    ignore_mask[masks == 0] = True
+    ignore_mask[masks != 0] = False
+    ignore_mask = ignore_mask.astype(bool)
+
+    bkg = Background2D(nucleus, 3, mask=ignore_mask)
+    th = detect_threshold(data=nucleus, nsigma=0, mask_value=0, background=bkg.background)
+    return th
+
 
 class NuclearGame_Segmentation(object):
 
@@ -1266,6 +1281,10 @@ class NuclearGame_Segmentation(object):
                 self.data["files"][file]["masks"], self.data["files"][file]["flows"] = _cellpose(nuclei,
                                                                                        diameter = diameter,
                                                                                        GPU = GPU)
+                self.data["files"][file]["th_array"] = get_th_array(self.data["files"][file]["masks"],
+                                                                    nuclei)
+
+
         elif method.lower() == "deepcell":
             self.check_pxScale()
             self.seg_method = "deepcell"
@@ -1280,6 +1299,11 @@ class NuclearGame_Segmentation(object):
                     dc_scaleCorr = 1
                 self.data["files"][file]["masks"] = _deepcell(image = nuclei,
                                                               scale = self.data["files"][file]['metadata']['XScale'] * dc_scaleCorr)
+                self.data["files"][file]["th_array"] = get_th_array(self.data["files"][file]["masks"],
+                                                                    nuclei)
+
+
+
 
 
 
