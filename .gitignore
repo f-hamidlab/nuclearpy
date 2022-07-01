@@ -3,6 +3,7 @@ build
 dist
 .idea
 *.egg-info/
+data/test_out
 
 .DS_Store
 docs/.ipynb_checkpoints/
