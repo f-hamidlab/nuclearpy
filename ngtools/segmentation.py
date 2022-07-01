@@ -2025,7 +2025,7 @@ class NuclearGame_Segmentation(object):
         return lst_fts
 
 
-    def export_csv(self, filename = "raw_output.csv"):
+    def export_csv(self, filename = "output.csv"):
         """
         Export data generated as CSV
 
