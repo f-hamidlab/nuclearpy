@@ -1659,12 +1659,12 @@ class NuclearGame_Segmentation(object):
             ignore_mask = ignore_mask.astype(bool)
 
             bkg = Background2D(nucleus, 3, mask=ignore_mask)
-            th = detect_threshold(data=nucleus, nsigma=0, mask_value=0, background=bkg.background)
+            th = detect_threshold(data=nucleus, nsigma=0, mask_value=0, background=bkg.background, mask=ignore_mask)
             peak_tb = find_peaks(data=nucleus, threshold=th, mask=ignore_mask, box_size=box_size)
 
             peak_df = peak_tb.to_pandas()
-            peak_df['x_round'] = 10 * np.round(peak_df['x_peak'].to_numpy()/10)
-            peak_df['y_round'] = 10 * np.round(peak_df['y_peak'].to_numpy() / 10)
+            peak_df['x_round'] = 10 * np.ceil(peak_df['x_peak'].to_numpy()/10)
+            peak_df['y_round'] = 10 * np.ceil(peak_df['y_peak'].to_numpy() / 10)
 
             round_peak_df = peak_df[["x_round","y_round"]]
             round_peak_df = round_peak_df.drop_duplicates()
@@ -1714,15 +1714,15 @@ class NuclearGame_Segmentation(object):
             ignore_mask = ignore_mask.astype(bool)
 
             bkg = Background2D(nucleus, 3, mask=ignore_mask)
-            th = detect_threshold(data=nucleus, nsigma=0, mask_value=0, background=bkg.background)
+            th = detect_threshold(data=nucleus, nsigma=0, mask_value=0, background=bkg.background,mask=ignore_mask)
 
             sigma = 3.0 * gaussian_fwhm_to_sigma
 
             kernel = Gaussian2DKernel(sigma, x_size=3, y_size=3)
             kernel.normalize()
-            segm = detect_sources(data=nucleus, threshold=th, npixels=5, kernel=kernel, mask=ignore_mask)
+            segm = detect_sources(data=nucleus, threshold=th*1.15, npixels=7, kernel=kernel, mask=ignore_mask)
 
-            cat = SourceCatalog(masks, segm)
+            cat = SourceCatalog(nucleus, segm)
             columns = ['label', 'xcentroid', 'ycentroid', 'area']
             dots_df = cat.to_table(columns).to_pandas()
             dots_df['xcentroid'] = dots_df[['xcentroid']].astype(int)
@@ -1737,12 +1737,13 @@ class NuclearGame_Segmentation(object):
 
             dots_df["cell"] = mapped_peaks-1
             median_area = dots_df.groupby('cell')['area'].median()
+            median_area = median_area * (self.data["files"][file]['metadata']['XScale'] * self.data["files"][file]['metadata']['YScale'])
 
             area_outlist = np.zeros(len(self.data["files"][file]["nuclear_features"]["cellID"]))
             area_outlist[median_area.index.to_numpy().astype(int)] = median_area.values
-            self.data["files"][file]["nuclear_features"]["dna_dots_size_median"] = area_outlist
+            self.data["files"][file]["nuclear_features"]["dna_dots_size_median"] = np.round(area_outlist,3)
 
-            #
+
             # for cell in self.data["files"][file]["nuclear_features"]["cellID"]:
             #
             #     _index = self.data["files"][file]["nuclear_features"]["cellID"].index(cell)
@@ -1803,7 +1804,7 @@ class NuclearGame_Segmentation(object):
             #     except:
             #         self.data["files"][file]["nuclear_features"]["dna_dots_size_median"].append(np.nan)
             #         self.data["files"][file]["nuclear_features"]["dna_dots"].append(np.nan)
-            #
+
 
     def spatial_entropy(self, d = 5, zoom_box_size = 300):
         """
