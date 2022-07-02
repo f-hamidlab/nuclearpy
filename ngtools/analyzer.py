@@ -414,7 +414,7 @@ def import_channels_data(path=None, files=None):
 
 class NuclearGame_Analyzer(object):
 
-    def __init__(self, exp_dir=None, filename="output.csv", collated_csv=None, ):
+    def __init__(self, exp_dir=None, filename="output.csv", collated_csv=None):
         """
         Create an Analyzer object
         Parameters
@@ -448,6 +448,15 @@ class NuclearGame_Analyzer(object):
 
 
     def showData(self, data_type = 'raw', vars = None):
+        """
+        Displays features from segmented data
+        Parameters
+        ----------
+        data_type : string
+        	Data slot to display. Value can be raw (Default) or norm
+        vars : string or string list
+        	Name(s) of feature(s) to display. By default, all features are displayed  
+        """
         dat = self.data[data_type]
         if vars != None:
             print(dat[vars])
