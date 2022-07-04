@@ -1866,91 +1866,18 @@ class NuclearGame_Segmentation(object):
             signal_pd = pd.DataFrame(signal_coord, columns=['x_coord','y_coord'])
             signal_pd['cellID'] = masks[signal_pd['x_coord'],signal_pd['y_coord']]
             signal_pd['intensity'] = nucleus[signal_pd['x_coord'], signal_pd['y_coord']]
-            signal_pd["rank"] = signal_pd.groupby("cellID")["intensity"].rank("dense")
+            signal_pd["rank"] = signal_pd.groupby("cellID")["intensity"].rank("min")
             signal_max_grouped = signal_pd.groupby("cellID", as_index=False)["rank"].max()
             signal_max_grouped = signal_max_grouped.rename(columns={"rank": "maxrank"})
             signal_pd = pd.merge(signal_pd,signal_max_grouped,on='cellID',how='left')
             signal_pd['group'] = (10*signal_pd['rank']/signal_pd['maxrank']).apply(np.floor)
-            signal_pd['group'] =  signal_pd['group'] + 1
-            max_cell_id = len(self.data["files"][file]["nuclear_features"]["cellID"]) + 1
+            signal_pd['group'] = signal_pd['group'] + 1
             out = signal_pd.groupby('cellID').apply(lambda x: leibovici_entropy(np.array(x[["y_coord","x_coord"]]), np.intc(x["group"]), d=5).entropy)
 
+            self.data["files"][file]["nuclear_features"]["spatial_entropy"] = round(out, 3)
 
 
 
-
-		# make df
-		# add cell ID info
-		# add intensity val
-		# rank per cell and group 
-		# calcc entropy, by list comp or pandas 
-            pp_val = np.array([nucleus[x[0],x[1]] for x in pp])
-
-
-            for cell in self.data["files"][file]["nuclear_features"]["cellID"]:
-
-                _index = self.data["files"][file]["nuclear_features"]["cellID"].index(cell)
-
-                masks = self.data["files"][file]["masks"].copy()
-                masks[masks != cell] = 0
-                masks[masks == cell] = 1
-
-                nucleus = self.data["files"][file]['working_array'][self.data["channels_info"][self.data["dna_marker"]]].copy()
-                nucleus[masks != 1] = 0
-
-                if zoom_box_size != None:
-                    half_zoom_box = int(zoom_box_size / 2)
-                    cY = int(self.data["files"][file]["nuclear_features"]["y_pos"][_index])
-                    cX = int(self.data["files"][file]["nuclear_features"]["x_pos"][_index])
-                    cY_low = cY - half_zoom_box
-                    cY_high = cY + half_zoom_box
-                    cX_low = cX - half_zoom_box
-                    cX_high = cX + half_zoom_box
-                    if (cY-half_zoom_box) < 0:
-                        cY_low = 0
-                    if (cY+half_zoom_box) > len(nucleus):
-                        cY_high = len(nucleus)
-                    if (cX-half_zoom_box) < 0:
-                        cX_low = 0
-                    if (cX+half_zoom_box) > len(nucleus[0]):
-                        cX_high = len(nucleus[0])
-                    nucleus = nucleus[cY_low:cY_high, cX_low:cX_high]
-                    masks = masks[cY_low:cY_high, cX_low:cX_high]
-
-                pp = np.array([[nx, ny] for ny in range(len(nucleus)) for nx in range(len(nucleus[ny])) if nucleus[ny][nx] != 0])
-
-                lst_types = []
-
-                p10, p20, p30, p40, p50, p60, p70, p80, p90 = np.percentile(nucleus[nucleus != 0], [10, 20, 30, 40, 50, 60, 70, 80, 90])
-
-                for l in pp:
-                    x, y = l
-                    if nucleus[y][x] < p10:
-                        lst_types.append("1")
-                    elif nucleus[y][x] >= p10 and nucleus[y][x] < p20:
-                        lst_types.append("2")
-                    elif nucleus[y][x] >= p20 and nucleus[y][x] < p30:
-                        lst_types.append("3")
-                    elif nucleus[y][x] >= p30 and nucleus[y][x] < p40:
-                        lst_types.append("4")
-                    elif nucleus[y][x] >= p40 and nucleus[y][x] < p50:
-                        lst_types.append("5")
-                    elif nucleus[y][x] >= p50 and nucleus[y][x] < p60:
-                        lst_types.append("6")
-                    elif nucleus[y][x] >= p60 and nucleus[y][x] < p70:
-                        lst_types.append("7")
-                    elif nucleus[y][x] >= p70 and nucleus[y][x] < p80:
-                        lst_types.append("8")
-                    elif nucleus[y][x] >= p80 and nucleus[y][x] < p90:
-                        lst_types.append("9")
-                    else:
-                        lst_types.append("10")
-
-                types = np.array(lst_types)
-
-                lb_ent = leibovici_entropy(pp, types, d)
-
-                self.data["files"][file]["nuclear_features"]["spatial_entropy"].append(round(lb_ent.entropy, 3))
 
 
 
