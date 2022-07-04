@@ -1862,7 +1862,23 @@ class NuclearGame_Segmentation(object):
 
 
 
-            signal_coord = np.where(masks > 0)
+            signal_coord = np.argwhere(masks > 0)
+            signal_pd = pd.DataFrame(signal_coord, columns=['x_coord','y_coord'])
+            signal_pd['cellID'] = masks[signal_pd['x_coord'],signal_pd['y_coord']]
+            signal_pd['intensity'] = nucleus[signal_pd['x_coord'], signal_pd['y_coord']]
+            signal_pd["rank"] = signal_pd.groupby("cellID")["intensity"].rank("dense")
+            signal_max_grouped = signal_pd.groupby("cellID", as_index=False)["rank"].max()
+            signal_max_grouped = signal_max_grouped.rename(columns={"rank": "maxrank"})
+            signal_pd = pd.merge(signal_pd,signal_max_grouped,on='cellID',how='left')
+            signal_pd['group'] = (10*signal_pd['rank']/signal_pd['maxrank']).apply(np.floor)
+            signal_pd['group'] =  signal_pd['group'] + 1
+            max_cell_id = len(self.data["files"][file]["nuclear_features"]["cellID"]) + 1
+            out = signal_pd.groupby('cellID').apply(lambda x: leibovici_entropy(np.array(x[["y_coord","x_coord"]]), np.intc(x["group"]), d=5).entropy)
+
+
+
+
+
 		# make df
 		# add cell ID info
 		# add intensity val
