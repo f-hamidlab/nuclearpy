@@ -414,7 +414,7 @@ def import_channels_data(path=None, files=None):
 
 class NuclearGame_Analyzer(object):
 
-    def __init__(self, exp_dir=None, filename="output.csv", collated_csv=None, ):
+    def __init__(self, exp_dir=None, filename="output.csv", collated_csv=None):
         """
         Create an Analyzer object
         Parameters
@@ -430,7 +430,7 @@ class NuclearGame_Analyzer(object):
 
         Returns
         -------
-        None.
+        Analyzer object
 
         """
 
@@ -448,6 +448,23 @@ class NuclearGame_Analyzer(object):
 
 
     def showData(self, data_type = 'raw', vars = None):
+        """
+        Displays analyzer data.
+        By default, this function prints out all features from the raw segmented data. To display normalized data,
+        set `data_type` to 'norm'. To print out desired features, provide a list of feature names as input for `vars`.
+
+        Parameters
+        ----------
+        data_type : string
+            Type of data to show. Can be 'raw' (default) or 'norm'.
+        vars : string or list of strings
+            Name of features to display. Name should be found in dataframe.
+
+        Returns
+        -------
+        None.
+
+        """
         dat = self.data[data_type]
         if vars != None:
             print(dat[vars])
@@ -455,36 +472,175 @@ class NuclearGame_Analyzer(object):
             print(dat)
 
     def colnames(self):
+        """
+        Prints out name of features
+
+        Returns
+        -------
+        None.
+
+        """
         print(self.data['raw'].columns)
 
     def count(self, vars):
+        """
+        Counts the number of observations for a (group of) variables.
+
+        Parameters
+        ----------
+        vars : string or list of strings
+            Name of features to summarise. Name should be found in dataframe.
+
+        Returns
+        -------
+        None.
+
+        """
         dat = self.data['raw']
         print(dat[vars].value_counts())
 
     def dim(self):
+        """
+        Prints the dimension of input data [number of cells x number of features]
+
+        Returns
+        -------
+        None.
+
+        """
         print(self.data['raw'].shape)
 
     def ncol(self):
+        """
+        Prints the number of features
+
+        Returns
+        -------
+        None.
+
+        """
         print(self.data['raw'].shape[1])
 
     def nrow(self):
+        """
+        Prints the number of cells
+
+        Returns
+        -------
+        None.
+
+        """
         print(self.data['raw'].shape[0])
 
     def ctrDAPI(self, splitBy = "experiment", nbins = 100, showPlot = True):
+        """
+        Centralize DAPI intensity ....
+
+        Parameters
+        ----------
+        splitBy : string
+            Name of feature to
+        nbins : int
+            Number of bins...
+        showPlot : bool
+            Whether to display....
+
+        Returns
+        -------
+        None.
+
+        """
         self.data['raw'] = centerDAPI(self.data['raw'], splitBy, nbins, showPlot)
 
     def findSingleCells(self, byExperiment = True, nbins = 100, spread = 0.4, channel = None):
+        """
+        Annotate single cells ......
+
+        Parameters
+        ----------
+        byExperiment : bool
+            Whether to annotate single cells per experiment.
+        nbins : int
+            Number of bins...
+        spread : float
+            Whether to display....
+        channel : int
+            Number of bins...
+
+        Returns
+        -------
+        None.
+
+        """
         if channel == None:
             channel = "dapi"
         self.data['raw'] = find_SingleCells(self.data['raw'], byExperiment, nbins, spread, channel)
 
     def showCell(self, n=None, ch2show=None, order_by=None, fig_height=15, fig_width=40, show_nucleus=True,
                  RGB_contrasts=[3,3,4], uniqID=False):
+        """
+        Display image of cells
+
+        Parameters
+        ----------
+        n : int
+            Number of cells to display, If value is None, function will prompt for value using interactive input.
+        ch2show : string or stringlist
+            List of channels to display. If value is None, function will prompt for value using interactive input.
+        order_by : string
+            Feature to order cells by.
+        fig_height : int
+            Height of output image
+        fig_width : int
+            Width of output image
+        show_nucleus : bool
+            Whether to display nucleus
+        RGB_contrasts : integerlist
+            A list containing 3 integers corresponding to contrast values for Red, Green and Blue channels
+        uniqID : bool
+            Whether to assign unique ID for each cell
+
+        Returns
+        -------
+        None.
+
+        """
         show_cell(self.data['raw'], order_by, fig_height, fig_width, show_nucleus, RGB_contrasts, uniqID, ch2show, n, self.meta['channels'])
 
     def plotData(self, x, y, data_type = "raw", plot_type = "scatter",
                  hue = None, alpha = 1, x_trans = None, y_trans = None,
                  x_rot = None, shuffle=False):
+        """
+        Plot data from Analyzer object
+
+        Parameters
+        ----------
+        x : string
+            Name of feature to plot on the x-axis
+        y : string
+            Name of feature  to plot on the y-axis
+        data_type : string
+            Type of data to plot. Can be 'raw' (default) or 'norm'.
+        plot_type : string
+            Type of plot. Can be "scatter" (default), "violin" or "line"
+        hue : string
+            Name of feature to colour-code the cells by
+        alpha : float
+            Set opacity of scatter points. Input can take up a float value from 0 to 1.
+        x_trans : string
+            Scaling type to apply on x-axis. Can be "linear", "log", "symlog" or "logit"
+        y_trans : bool
+            Scaling type to apply on x-axis. Can be "linear", "log", "symlog" or "logit"
+        x_rot : int
+            Degrees to rotate x-axis labels
+        shuffle : bool
+            Whether to shuffle cell order. Useful to reduce overlapping of cells
+
+        Returns
+        -------
+        None.
+
+        """
         #fig, ax = plt.subplots(figsize=(6.4, 4.8))
 
         dat = self.data[data_type].copy()
@@ -521,12 +677,46 @@ class NuclearGame_Analyzer(object):
         plt.show()
 
     def plotVarDist(self, vars = "all", data_type="raw"):
+        """
+         Plot distribution of features
+
+         Parameters
+         ----------
+         vars : string or stringlist
+             Name of features to plot
+         data_type : string
+             Whether to plot "raw" data or "norm" data
+
+         Returns
+         -------
+         None.
+
+         """
         if vars == "all":
             self.data[data_type].boxplot()
         else:
             self.data[data_type].boxplot(rot=45, column=vars)
 
     def filterCells(self, expr = "", data_type = 'raw', cells = None):
+        """
+         Filter cells by feature values
+
+         Parameters
+         ----------
+         expr : string or bool list
+             Can be a string that describes the logical expression to filter cells by. E.g.
+             "nuclear_area > 50" or "experiment == 'induced'". Can also be a list of boolean
+             of length similar to the number of cells in object
+         data_type : string
+             Whether to plot "raw" data or "norm" data
+        cells : string list
+            Optional: list of string contain index of cells to retain.
+
+         Returns
+         -------
+         None.
+
+         """
 
         if expr != "":
             data = self.data[data_type].copy()
@@ -548,11 +738,43 @@ class NuclearGame_Analyzer(object):
             self.data['norm'] = self.data['norm'].loc[cells]
 
     def normIntensity(self, method = "mode", nbins = 100, verbose = False, hue = "experiment"):
+        """
+         Normalize intensity of channels
+
+         Parameters
+         ----------
+         method : string
+            Method to normalize the intensity by. Options are "mode" (default), "mean" or "median".
+         nbins : int
+             Number of bins to use.....
+        verbose : boolean
+            Whether to print out function messages
+        hue : string
+            Name of feature to colour-code the cells by
+
+         Returns
+         -------
+         None.
+
+         """
         normData, normMetadata = intensityNormalisation(self.data['raw'], method, nbins, verbose, hue)
         self.data['norm'] = normData
         self.meta = normMetadata
 
     def buildAData(self, excluded_features = []):
+        """
+         Build data for dimensional reduction
+
+         Parameters
+         ----------
+         excluded_features : string or string list
+            List of features to exclude from dimensional reduction
+
+         Returns
+         -------
+         None.
+
+         """
 
         to_drop = ['cellID', 'x_pos', 'y_pos', 'angle']
         to_drop.extend(list(x for x in list(self.data['norm']) if x.endswith('_group')))
@@ -581,23 +803,90 @@ class NuclearGame_Analyzer(object):
 
 
     def normAData(self):
+        """
+         Normalize data for dimensional reduction
+
+         Returns
+         -------
+         None.
+
+         """
         self.adata.X = _normalise_data(self.adata.X)
         sc.pp.scale(self.adata, max_value=10)
 
     def showAData(self):
+        """
+         Show AData
+
+         Returns
+         -------
+         None.
+
+         """
         print(self.adata)
 
     def showADataVars(self):
+        """
+         Build variables used in AData
+
+         Returns
+         -------
+         None.
+
+         """
         print(self.adata.var_names.to_list())
 
     def showADataObs(self):
+        """
+         Build observations in AData
+
+
+         Returns
+         -------
+         None.
+
+         """
         print(self.adata.obs.columns.to_list())
 
 
     def findNeighbours(self, method = "umap", n = 30, use_rep = "X"):
+        """
+         Finds neighbours of cells
+
+         Parameters
+         ----------
+         method : string
+            .....
+        n : int
+            text text
+        use_rep : string
+            text text
+
+         Returns
+         -------
+         None.
+
+         """
         sc.pp.neighbors(self.adata, n_neighbors=n, use_rep=use_rep, method=method)
 
     def findClusters(self, method="leiden", res = 0.6, name = None):
+        """
+         Cluster cells
+
+         Parameters
+         ----------
+         method : string
+            .....
+        res : float
+            text text
+        name : string
+            text text
+
+         Returns
+         -------
+         None.
+
+         """
         if method == "leiden":
             sc.tl.leiden(self.adata, resolution = res)
         elif method == "louvain":
@@ -610,12 +899,38 @@ class NuclearGame_Analyzer(object):
         self.data['norm'][name] = self.adata.obs[method].to_list()
 
     def runDimReduc(self, method = "umap"):
+        """
+         Reduce dimension of data
+
+         Parameters
+         ----------
+         method : string
+            .....
+
+         Returns
+         -------
+         None.
+
+         """
         if method == "umap":
             sc.tl.umap(self.adata)
         elif method == "diffmap":
             sc.tl.diffmap(self.adata)
 
     def plotDim(self, hue = None, method = "umap"):
+        """
+         Plots coordinates of cells on reduced dimension
+
+         Parameters
+         ----------
+         method : string
+            .....
+
+         Returns
+         -------
+         None.
+
+         """
         fig, ax = plt.subplots(figsize=(4, 4))
 
         if method == "umap":
@@ -631,6 +946,20 @@ class NuclearGame_Analyzer(object):
         plt.show()
 
     def runPT(self, root):
+        """
+         Run pseudotime analysis
+
+         Parameters
+         ----------
+         root : list of int
+            .....
+
+
+         Returns
+         -------
+         None.
+
+         """
         self.adata.uns['iroot'] = root
         sc.tl.dpt(self.adata)
 
