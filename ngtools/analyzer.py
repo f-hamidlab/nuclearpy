@@ -481,7 +481,7 @@ class Analyzor(object):
         None.
 
         """
-        print(self.data['raw'].columns.to_list)
+        return self.data['raw'].columns.to_list()
 
     def count(self, vars):
         """
