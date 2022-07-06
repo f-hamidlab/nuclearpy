@@ -751,9 +751,17 @@ class NuclearGame_Analyzer(object):
                 eval_expr = "".join(["data['", expr_split[0], "']", expr_split[1], expr_split[2]])
                 cells = data[eval(eval_expr)].index.to_list()
 
-        self.data['raw'] = self.data['raw'].loc[cells]
-        if self.data['norm'] != "":
-            self.data['norm'] = self.data['norm'].loc[cells]
+        if inplace:
+            self.data['raw'] = self.data['raw'].loc[cells]
+            if self.data['norm'] != "":
+                self.data['norm'] = self.data['norm'].loc[cells]
+
+        else:
+            dat = self.copy()
+            dat.data['raw'] = dat.data['raw'].loc[cells]
+            if dat.data['norm'] != "":
+                dat.data['norm'] = dat.data['norm'].loc[cells]
+            return dat
 
     def normIntensity(self, method = "mode", nbins = 100, verbose = False, hue = "experiment"):
         """
