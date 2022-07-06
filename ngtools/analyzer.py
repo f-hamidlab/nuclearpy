@@ -437,18 +437,19 @@ class Analyzor(object):
 
         if collated_csv is not None:
             dat=pd.read_csv(collated_csv)
-            self.data = {"raw": dat, "norm": ""}
+            self.data = {"raw": dat, "norm": dat}
 
             files = set(dat['path2ong'].to_list())
             files = [txt.replace("output.csv","channels_info.json") for txt in files]
             self.meta = {"channels": import_channels_data(files = files)}
         else:
-            self.data = {"raw": import_ng_data(exp_dir, filename), "norm": ""}
+            dat = import_ng_data(exp_dir, filename),
+            self.data = {"raw": dat, "norm": dat}
             self.meta = {"channels": import_channels_data(exp_dir)}
         self.adata = ""
 
 
-    def showData(self, data_type = 'raw', vars = None):
+    def showData(self, data_type = 'norm', vars = None):
         """
         Displays analyzer data.
         By default, this function prints out all features from the raw segmented data. To display normalized data,
@@ -551,7 +552,7 @@ class Analyzor(object):
         None.
 
         """
-        self.data['raw'] = centerDAPI(self.data['raw'], splitBy, nbins, showPlot)
+        self.data['norm'] = centerDAPI(self.data['raw'], splitBy, nbins, showPlot)
 
     def findSingleCells(self, byExperiment = True, nbins = 100, spread = 0.4, channel = None):
         """
@@ -624,10 +625,10 @@ class Analyzor(object):
 
         """
         self.data['raw'] = self.data['raw'].rename(columns = columns, inplace = False)
-        if self.data['norm'] != "":
-            self.data['norm'] = self.data['norm'].rename(columns=columns, inplace=False)
+        self.data['norm'] = self.data['norm'].rename(columns=columns, inplace=False)
 
-    def plotData(self, x, y, data_type = "raw", plot_type = "scatter",
+
+    def plotData(self, x, y, data_type = "norm", plot_type = "scatter",
                  hue = None, alpha = 1, x_trans = None, y_trans = None,
                  x_rot = None, shuffle=False):
         """
@@ -696,7 +697,7 @@ class Analyzor(object):
         plt.tight_layout()
         plt.show()
 
-    def plotVarDist(self, vars = "all", data_type="raw"):
+    def plotVarDist(self, vars = "all", data_type="norm"):
         """
          Plot distribution of features
 
@@ -717,7 +718,7 @@ class Analyzor(object):
         else:
             self.data[data_type].boxplot(rot=45, column=vars)
 
-    def filterCells(self, expr = "", data_type = 'raw', cells = None, inplace = True):
+    def filterCells(self, expr = "", data_type = 'norm', cells = None, inplace = True):
         """
          Filter cells by feature values
 
@@ -755,14 +756,14 @@ class Analyzor(object):
 
         if inplace:
             self.data['raw'] = self.data['raw'].loc[cells]
-            if self.data['norm'] != "":
-                self.data['norm'] = self.data['norm'].loc[cells]
+            self.data['norm'] = self.data['norm'].loc[cells]
+
 
         else:
             dat = self.copy()
             dat.data['raw'] = dat.data['raw'].loc[cells]
-            if dat.data['norm'] != "":
-                dat.data['norm'] = dat.data['norm'].loc[cells]
+            dat.data['norm'] = dat.data['norm'].loc[cells]
+
             return dat
 
     def copy(self):
@@ -809,7 +810,7 @@ class Analyzor(object):
          None.
 
          """
-        normData, normMetadata = intensityNormalisation(self.data['raw'], method, nbins, verbose, hue)
+        normData, normMetadata = intensityNormalisation(self.data['norm'], method, nbins, verbose, hue)
         self.data['norm'] = normData
         self.meta = normMetadata
 
