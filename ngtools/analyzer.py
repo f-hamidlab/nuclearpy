@@ -607,6 +607,24 @@ class NuclearGame_Analyzer(object):
         """
         show_cell(self.data['raw'], order_by, fig_height, fig_width, show_nucleus, RGB_contrasts, uniqID, ch2show, n, self.meta['channels'])
 
+    def rename(self, columns):
+        """
+        Rename features
+
+        Parameters
+        ----------
+        columns : dict
+            Dictionary datatype with old feature names as keys, and new names as values
+
+        Returns
+        -------
+        None.
+
+        """
+        self.data['raw'] = self.data['raw'].rename(columns = columns, inplace = False)
+        if self.data['norm'] != "":
+            self.data['norm'] = self.data['norm'].rename(columns=columns, inplace=False)
+
     def plotData(self, x, y, data_type = "raw", plot_type = "scatter",
                  hue = None, alpha = 1, x_trans = None, y_trans = None,
                  x_rot = None, shuffle=False):
