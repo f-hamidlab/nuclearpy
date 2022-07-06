@@ -12,6 +12,7 @@ Created on Mon Mar 15 20:52:32 2021
 import cv2
 import anndata
 import pandas as pd
+import copy
 import os, json
 from os.path import isfile, join, isdir
 import statistics
@@ -412,7 +413,7 @@ def import_channels_data(path=None, files=None):
     return data_dict
 
 
-class NuclearGame_Analyzer(object):
+class Analyzor(object):
 
     def __init__(self, exp_dir=None, filename="output.csv", collated_csv=None):
         """
@@ -435,7 +436,7 @@ class NuclearGame_Analyzer(object):
         """
 
         if collated_csv is not None:
-            dat=pd.read_csv(csv)
+            dat=pd.read_csv(collated_csv)
             self.data = {"raw": dat, "norm": ""}
 
             files = set(dat['path2ong'].to_list())
@@ -471,7 +472,7 @@ class NuclearGame_Analyzer(object):
         else:
             print(dat)
 
-    def colnames(self):
+    def features(self):
         """
         Prints out name of features
 
@@ -480,7 +481,7 @@ class NuclearGame_Analyzer(object):
         None.
 
         """
-        print(self.data['raw'].columns)
+        print(self.data['raw'].columns.to_list)
 
     def count(self, vars):
         """
@@ -499,7 +500,7 @@ class NuclearGame_Analyzer(object):
         dat = self.data['raw']
         print(dat[vars].value_counts())
 
-    def dim(self):
+    def shape(self):
         """
         Prints the dimension of input data [number of cells x number of features]
 
@@ -510,7 +511,7 @@ class NuclearGame_Analyzer(object):
         """
         print(self.data['raw'].shape)
 
-    def ncol(self):
+    def nfeatures(self):
         """
         Prints the number of features
 
@@ -521,7 +522,7 @@ class NuclearGame_Analyzer(object):
         """
         print(self.data['raw'].shape[1])
 
-    def nrow(self):
+    def ncells(self):
         """
         Prints the number of cells
 
