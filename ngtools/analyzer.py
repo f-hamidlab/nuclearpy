@@ -715,7 +715,7 @@ class NuclearGame_Analyzer(object):
         else:
             self.data[data_type].boxplot(rot=45, column=vars)
 
-    def filterCells(self, expr = "", data_type = 'raw', cells = None):
+    def filterCells(self, expr = "", data_type = 'raw', cells = None, inplace = True):
         """
          Filter cells by feature values
 
