@@ -586,8 +586,9 @@ class Analyzor(object):
         ----------
         n : int
             Number of cells to display, If value is None, function will prompt for value using interactive input.
-        ch2show : string or stringlist
-            List of channels to display. If value is None, function will prompt for value using interactive input.
+        ch2show : dict
+            Dictionary of channels to display, e.g. {'red': "rfp", 'green': "beta3"}.
+            If value is None, function will prompt for value using interactive input.
         order_by : string
             Feature to order cells by.
         fig_height : int
