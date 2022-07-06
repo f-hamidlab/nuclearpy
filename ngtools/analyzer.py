@@ -763,6 +763,30 @@ class NuclearGame_Analyzer(object):
                 dat.data['norm'] = dat.data['norm'].loc[cells]
             return dat
 
+    def copy(self):
+        """
+         Filter cells by feature values
+
+         Parameters
+         ----------
+         expr : string or bool list
+             Can be a string that describes the logical expression to filter cells by. E.g.
+             "nuclear_area > 50" or "experiment == 'induced'". Can also be a list of boolean
+             of length similar to the number of cells in object
+         data_type : string
+             Whether to plot "raw" data or "norm" data
+        cells : string list
+            Optional: list of string contain index of cells to retain.
+
+         Returns
+         -------
+         None.
+
+         """
+
+        return(copy.deepcopy(self))
+
+
     def normIntensity(self, method = "mode", nbins = 100, verbose = False, hue = "experiment"):
         """
          Normalize intensity of channels
