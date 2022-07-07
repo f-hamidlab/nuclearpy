@@ -974,8 +974,16 @@ class Analyzor(object):
          """
         if method == "umap":
             sc.tl.umap(self.adata)
+            self.data['raw']['umap_1'] = self.adata.obsm['X_umap'][...,0]
+            self.data['raw']['umap_2'] = self.adata.obsm['X_umap'][..., 1]
+            self.data['norm']['umap_1'] = self.adata.obsm['X_umap'][..., 0]
+            self.data['norm']['umap_2'] = self.adata.obsm['X_umap'][..., 1]
         elif method == "diffmap":
             sc.tl.diffmap(self.adata)
+            self.data['raw']['diffmap_1'] = self.adata.obsm['X_diffmap'][..., 0]
+            self.data['raw']['diffmap_2'] = self.adata.obsm['X_diffmap'][..., 1]
+            self.data['norm']['diffmap_1'] = self.adata.obsm['X_diffmap'][..., 0]
+            self.data['norm']['diffmap_2'] = self.adata.obsm['X_diffmap'][..., 1]
 
     def plotDim(self, hue = None, method = "umap"):
         """
