@@ -443,7 +443,7 @@ class Analyzor(object):
             files = [txt.replace("output.csv","channels_info.json") for txt in files]
             self.meta = {"channels": import_channels_data(files = files)}
         else:
-            dat = import_ng_data(exp_dir, filename),
+            dat = import_ng_data(exp_dir, filename)
             self.data = {"raw": dat, "norm": dat}
             self.meta = {"channels": import_channels_data(exp_dir)}
         self.adata = ""
