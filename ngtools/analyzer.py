@@ -26,6 +26,8 @@ from sklearn.preprocessing import StandardScaler, MinMaxScaler, MaxAbsScaler
 from PIL import Image, ImageEnhance
 import plotly.graph_objects as go
 from matplotlib_scalebar.scalebar import ScaleBar
+from matplotlib.widgets import LassoSelector
+from matplotlib.path import Path
 import operator
 
 warnings.filterwarnings('ignore')
@@ -103,10 +105,10 @@ def find_SingleCells(df, byExperiment=True, nbins=10, spread=0.2, channel="dapi"
         dct_norm["all"] = mode_
         out_df = df_.copy()
 
-    out_df["isSingleCell"] = [True if row[col] >= 1 - spread and row[col] <= 1 + spread else False
+    out_array = [True if row[col] >= 1 - spread and row[col] <= 1 + spread else False
                               for index, row in out_df.iterrows()]
 
-    return out_df
+    return out_array
 
 
 def generatePairs(data):
@@ -316,6 +318,9 @@ def embeddingPlotter(adata, basis="umap", size=20):
     if basis == "diffmap":
         df["x"] = adata.obsm["X_diffmap"][..., 1]
         df["y"] = adata.obsm["X_diffmap"][..., 2]
+    elif basis == "umap":
+        df["x"] = adata.obsm["X_umap"][..., 0]
+        df["y"] = adata.obsm["X_umap"][..., 1]
 
     f = go.FigureWidget([go.Scatter(y=df["y"],
                                     x=df["x"],
@@ -576,7 +581,9 @@ class Analyzor(object):
         """
         if channel == None:
             channel = "dapi"
-        self.data['raw'] = find_SingleCells(self.data['raw'], byExperiment, nbins, spread, channel)
+        ss_array = find_SingleCells(self.data['raw'], byExperiment, nbins, spread, channel)
+        self.data['raw']['isSingleCell'] = ss_array
+        self.data['norm']['isSingleCell'] = ss_array
 
     def showCell(self, n=None, ch2show=None, order_by=None, fig_height=15, fig_width=40, show_nucleus=True,
                  RGB_contrasts=[3,3,4], uniqID=False):
@@ -1016,9 +1023,89 @@ class Analyzor(object):
         self.adata.uns['iroot'] = root
         sc.tl.dpt(self.adata)
 
+    def chooseCells(self, x=None, y=None, hue=None, reduction=None):
+        cells = choose_Cells(self, x,y,hue,reduction)
+        dat = cells['cells']
+        return dat
+
+
+def choose_Cells(self, x=None, y=None, hue=None, reduction=None):
+    data = self.data['norm'].copy()
+    fig, ax = plt.subplots()
+    pts = ax.scatter(data[x], data[y], s=80)
+
+    selector = SelectFromCollection(ax, pts)
+    out = {'cells': ""}
+    def accept(event):
+        if event.key == "enter":
+            out['cells'] = selector.ind
+            plt.close()
+
+
+    fig.canvas.mpl_connect("key_press_event", accept)
+    ax.set_title("Lasso desired cells and press enter")
+
+    plt.show()
+
+    return out
 
 
 
+
+class SelectFromCollection:
+    """
+    Select indices from a matplotlib collection using `LassoSelector`.
+
+    Selected indices are saved in the `ind` attribute. This tool fades out the
+    points that are not part of the selection (i.e., reduces their alpha
+    values). If your collection has alpha < 1, this tool will permanently
+    alter the alpha values.
+
+    Note that this tool selects collection objects based on their *origins*
+    (i.e., `offsets`).
+
+    Parameters
+    ----------
+    ax : `~matplotlib.axes.Axes`
+        Axes to interact with.
+    collection : `matplotlib.collections.Collection` subclass
+        Collection you want to select from.
+    alpha_other : 0 <= float <= 1
+        To highlight a selection, this tool sets all selected points to an
+        alpha value of 1 and non-selected points to *alpha_other*.
+    """
+
+    def __init__(self, ax, collection, alpha_other=0.3):
+        self.canvas = ax.figure.canvas
+        self.collection = collection
+        self.alpha_other = alpha_other
+
+        self.xys = collection.get_offsets()
+        self.Npts = len(self.xys)
+
+        # Ensure that we have separate colors for each object
+        self.fc = collection.get_facecolors()
+        if len(self.fc) == 0:
+            raise ValueError('Collection must have a facecolor')
+        elif len(self.fc) == 1:
+            self.fc = np.tile(self.fc, (self.Npts, 1))
+
+        self.lasso = LassoSelector(ax, onselect=self.onselect)
+        self.ind = []
+
+    def onselect(self, verts):
+        path = Path(verts)
+        self.ind = np.nonzero(path.contains_points(self.xys))[0]
+        self.fc[:, -1] = self.alpha_other
+        self.fc[self.ind, -1] = 1
+        self.collection.set_facecolors(self.fc)
+        self.canvas.draw_idle()
+
+    def disconnect(self):
+        self.lasso.disconnect_events()
+        self.fc[:, -1] = 1
+        self.collection.set_facecolors(self.fc)
+        self.canvas.draw_idle()
 
 
 
