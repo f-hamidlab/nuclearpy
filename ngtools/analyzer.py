@@ -769,16 +769,16 @@ class Analyzor(object):
                 expr_split = expr.split()
                 eval_expr = "".join(["data['", expr_split[0], "']", expr_split[1], expr_split[2]])
                 cells = data[eval(eval_expr)].index.to_list()
+        elif type(cells) is dict:
+            cells = self.data['raw'].iloc[cells['cells'],].index
 
         if inplace:
-            self.data['raw'] = self.data['raw'].loc[cells]
-            self.data['norm'] = self.data['norm'].loc[cells]
-
-
+            self.data['raw'] = self.data['raw'].iloc[cells,]
+            self.data['norm'] = self.data['norm'].iloc[cells,]
         else:
             dat = self.copy()
-            dat.data['raw'] = dat.data['raw'].loc[cells]
-            dat.data['norm'] = dat.data['norm'].loc[cells]
+            dat.data['raw'] = dat.data['raw'].iloc[cells,]
+            dat.data['norm'] = dat.data['norm'].iloc[cells,]
 
             return dat
 
@@ -1045,6 +1045,7 @@ class Analyzor(object):
         if type(obj) is str:
             obj.filterCells(expr = filter)
         dat = choose_Cells(self, x,y,hue,reduction)
+
         return dat
 
 
