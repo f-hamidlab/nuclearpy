@@ -819,7 +819,7 @@ class Analyzor(object):
          """
         normData, normMetadata = intensityNormalisation(self.data['norm'], method, nbins, verbose, hue)
         self.data['norm'] = normData
-        #self.meta = normMetadata
+        self.meta['normMeta'] = normMetadata
 
     def buildAData(self, excluded_features = []):
         """
