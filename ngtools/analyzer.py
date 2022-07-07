@@ -586,7 +586,7 @@ class Analyzor(object):
         self.data['norm']['isSingleCell'] = ss_array
 
     def showCell(self, n=None, ch2show=None, order_by=None, fig_height=15, fig_width=40, show_nucleus=True,
-                 RGB_contrasts=[3,3,4], uniqID=False):
+                 RGB_contrasts=[3,3,4], uniqID=False, filter = None):
         """
         Display image of cells
 
@@ -615,7 +615,12 @@ class Analyzor(object):
         None.
 
         """
-        show_cell(self.data['raw'], order_by, fig_height, fig_width, show_nucleus, RGB_contrasts, uniqID, ch2show, n, self.meta['channels'])
+
+        obj = self.copy()
+        if type(filter) is str:
+            obj.filterCells(expr = filter)
+
+        show_cell(obj.data['raw'], order_by, fig_height, fig_width, show_nucleus, RGB_contrasts, uniqID, ch2show, n, obj.meta['channels'])
 
     def rename(self, columns):
         """
@@ -637,7 +642,7 @@ class Analyzor(object):
 
     def plotData(self, x, y, data_type = "norm", plot_type = "scatter",
                  hue = None, alpha = 1, x_trans = None, y_trans = None,
-                 x_rot = None, shuffle=False):
+                 x_rot = None, shuffle=False, filter = None):
         """
         Plot data from Analyzer object
 
@@ -671,7 +676,11 @@ class Analyzor(object):
         """
         #fig, ax = plt.subplots(figsize=(6.4, 4.8))
 
-        dat = self.data[data_type].copy()
+        obj = self.copy()
+        if type(filter) is str:
+            obj.filterCells(expr = filter)
+
+        dat = obj.data[data_type].copy()
         if shuffle:
             dat = dat.sample(frac=1)
 
@@ -1031,7 +1040,10 @@ class Analyzor(object):
         self.adata.uns['iroot'] = root
         sc.tl.dpt(self.adata)
 
-    def chooseCells(self, x=None, y=None, hue=None, reduction=None):
+    def chooseCells(self, x=None, y=None, hue=None, reduction=None, filter = None):
+        obj = self.copy()
+        if type(obj) is str:
+            obj.filterCells(expr = filter)
         dat = choose_Cells(self, x,y,hue,reduction)
         return dat
 
