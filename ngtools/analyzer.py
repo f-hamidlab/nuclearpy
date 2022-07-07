@@ -454,7 +454,7 @@ class Analyzor(object):
         self.adata = ""
 
 
-    def showData(self, data_type = 'norm', vars = None):
+    def showData(self, vars = None, data_type = 'norm'):
         """
         Displays analyzer data.
         By default, this function prints out all features from the raw segmented data. To display normalized data,
