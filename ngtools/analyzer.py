@@ -674,7 +674,7 @@ class Analyzor(object):
         None.
 
         """
-        #fig, ax = plt.subplots(figsize=(6.4, 4.8))
+        fig, ax = plt.subplots(figsize=(8, 6))
 
         obj = self.copy()
         if type(filter) is str:
@@ -685,13 +685,13 @@ class Analyzor(object):
             dat = dat.sample(frac=1)
 
         if plot_type == "scatter":
-            fig = sns.scatterplot(data=dat,
+            ax = sns.scatterplot(data=dat,
                                  y=y,
                                  x=x,
                                  hue=hue,
                                  alpha=alpha)
         elif plot_type == "line":
-            fig = sns.lmplot(x=x,
+            ax = sns.lmplot(x=x,
                        y=y,
                        data=dat,
                        hue=hue,
@@ -699,7 +699,7 @@ class Analyzor(object):
                        scatter=False
                        )
         elif plot_type == "violin":
-            fig = sns.violinplot(x = x,
+            ax = sns.violinplot(x = x,
                                  y = y,
                                  data = dat,
                                  palette = "Set3", bw = .2, hue = hue)
