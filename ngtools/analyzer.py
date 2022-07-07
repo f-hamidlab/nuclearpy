@@ -1036,6 +1036,7 @@ class Analyzor(object):
         return dat
 
 
+
 def choose_Cells(self, x=None, y=None, hue=None, reduction=None):
     data = self.data['norm'].copy()
     fig, ax = plt.subplots(figsize=(8, 8))
@@ -1100,7 +1101,9 @@ class SelectFromCollection:
         elif len(self.fc) == 1:
             self.fc = np.tile(self.fc, (self.Npts, 1))
 
-        self.lasso = LassoSelector(ax, onselect=self.onselect)
+        line = {'color': 'black',
+                'linewidth': 2, 'alpha': 1}
+        self.lasso = LassoSelector(ax, onselect=self.onselect, lineprops=line)
         self.ind = []
 
     def onselect(self, verts):
