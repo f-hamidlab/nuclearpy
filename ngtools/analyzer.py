@@ -1038,8 +1038,11 @@ class Analyzor(object):
 
 def choose_Cells(self, x=None, y=None, hue=None, reduction=None):
     data = self.data['norm'].copy()
-    fig, ax = plt.subplots()
-    pts = ax.scatter(data[x], data[y], s=80)
+    fig, ax = plt.subplots(figsize=(8, 8))
+    if hue is not None:
+        pts = ax.scatter(data[x], data[y], s=80, c=data[hue].astype('category').cat.codes)
+    else:
+        pts = ax.scatter(data[x], data[y], s=80)
 
     selector = SelectFromCollection(ax, pts)
     out = {'cells': ""}
