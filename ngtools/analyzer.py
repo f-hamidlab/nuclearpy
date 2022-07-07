@@ -819,7 +819,7 @@ class Analyzor(object):
          """
         normData, normMetadata = intensityNormalisation(self.data['norm'], method, nbins, verbose, hue)
         self.data['norm'] = normData
-        self.meta = normMetadata
+        #self.meta = normMetadata
 
     def buildAData(self, excluded_features = []):
         """
@@ -1032,8 +1032,7 @@ class Analyzor(object):
         sc.tl.dpt(self.adata)
 
     def chooseCells(self, x=None, y=None, hue=None, reduction=None):
-        cells = choose_Cells(self, x,y,hue,reduction)
-        dat = cells['cells']
+        dat = choose_Cells(self, x,y,hue,reduction)
         return dat
 
 
