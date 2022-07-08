@@ -1022,7 +1022,7 @@ class Analyzor(object):
         fig.tight_layout()
         plt.show()
 
-    def runPT(self, root):
+    def runPT(self, root_cells):
         """
          Run pseudotime analysis
 
@@ -1038,6 +1038,7 @@ class Analyzor(object):
 
          """
         self.adata.uns['iroot'] = root
+        self.adata.uns['iroot'] = root_cells
         sc.tl.dpt(self.adata)
 
     def chooseCells(self, x=None, y=None, hue=None, reduction=None, filter = None):
