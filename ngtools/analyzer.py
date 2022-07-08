@@ -1154,8 +1154,8 @@ class SelectFromCollection:
         elif len(self.fc) == 1:
             self.fc = np.tile(self.fc, (self.Npts, 1))
 
-        line = {'color': 'black',
-                'linewidth': 2, 'alpha': 1}
+        line = {'color': 'grey',
+                'linewidth': 2, 'alpha': 0.8}
         self.lasso = LassoSelector(ax, onselect=self.onselect, lineprops=line)
         self.ind = []
 
