@@ -1037,7 +1037,9 @@ class Analyzor(object):
          None.
 
          """
-        self.adata.uns['iroot'] = root
+        if type(root_cells) is dict:
+            root_cells = root_cells['cells']
+
         self.adata.uns['iroot'] = root_cells
         sc.tl.dpt(self.adata)
 
