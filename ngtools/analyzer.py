@@ -909,7 +909,7 @@ class Analyzor(object):
          None.
 
          """
-        # TODO: SCALE INTENSITIES
+
         self.adata.X = _normalise_data(self.adata.X, method = method)
         sc.pp.scale(self.adata, max_value=10)
 
