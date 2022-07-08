@@ -773,12 +773,12 @@ class Analyzor(object):
             cells = cells['cells']
 
         if inplace:
-            self.data['raw'] = self.data['raw'].iloc[cells,]
-            self.data['norm'] = self.data['norm'].iloc[cells,]
+            self.data['raw'] = self.data['raw'].loc[cells,]
+            self.data['norm'] = self.data['norm'].loc[cells,]
         else:
             dat = self.copy()
-            dat.data['raw'] = dat.data['raw'].iloc[cells,]
-            dat.data['norm'] = dat.data['norm'].iloc[cells,]
+            dat.data['raw'] = dat.data['raw'].loc[cells,]
+            dat.data['norm'] = dat.data['norm'].loc[cells,]
 
             return dat
 
