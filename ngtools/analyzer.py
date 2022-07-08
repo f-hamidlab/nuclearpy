@@ -452,6 +452,9 @@ class Analyzor(object):
             self.data = {"raw": dat, "norm": dat}
             self.meta = {"channels": import_channels_data(exp_dir)}
         self.adata = ""
+        self.excfeat = []
+        self.buildAData()
+        self.normAData()
 
 
     def showData(self, vars = None, data_type = 'norm'):
