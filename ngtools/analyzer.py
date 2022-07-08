@@ -770,7 +770,7 @@ class Analyzor(object):
                 eval_expr = "".join(["data['", expr_split[0], "']", expr_split[1], expr_split[2]])
                 cells = data[eval(eval_expr)].index.to_list()
         elif type(cells) is dict:
-            cells = self.data['raw'].iloc[cells['cells'],].index
+            cells = cells['cells']
 
         if inplace:
             self.data['raw'] = self.data['raw'].iloc[cells,]
@@ -1062,7 +1062,8 @@ def choose_Cells(self, x=None, y=None, hue=None, reduction=None):
     out = {'cells': ""}
     def accept(event):
         if event.key == "enter":
-            out['cells'] = selector.ind
+            out['index'] = selector.ind
+            out['cells'] = list(data.iloc[selector.ind,].index)
             plt.close()
 
 
