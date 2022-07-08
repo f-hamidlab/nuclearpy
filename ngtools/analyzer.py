@@ -744,9 +744,10 @@ class Analyzor(object):
 
          """
         if vars == "all":
-            self.data[data_type].boxplot()
+            vars = list(self.adata.var.feature)
+            dat.boxplot(figsize = (8,6), rot=45, column=vars)
         else:
-            self.data[data_type].boxplot(rot=45, column=vars)
+            dat.boxplot(rot=45, column=vars, figsize = (8,6))
 
     def filterCells(self, expr = "", data_type = 'norm', cells = None, inplace = True):
         """
