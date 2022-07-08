@@ -748,7 +748,7 @@ class Analyzor(object):
 
 
         if data_type == "scaled":
-            dat = pd.DataFrame(self.adata.X.copy(), columns=self.adata.var.feature, index=self.adata.obs.index)
+            dat = pd.DataFrame(self.adata.X.copy(), columns=self.adata.var.feature)
         else:
             dat = self.data[data_type].copy()
 
