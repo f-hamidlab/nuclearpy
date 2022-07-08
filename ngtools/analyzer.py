@@ -1139,7 +1139,7 @@ class SelectFromCollection:
         alpha value of 1 and non-selected points to *alpha_other*.
     """
 
-    def __init__(self, ax, collection, alpha_other=0.3):
+    def __init__(self, ax, collection, alpha_other=0.1):
         self.canvas = ax.figure.canvas
         self.collection = collection
         self.alpha_other = alpha_other
