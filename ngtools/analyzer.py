@@ -460,6 +460,11 @@ class Analyzor(object):
         self.buildAData(self.excfeat)
         self.normAData()
 
+    def excludeVars(self, vars):
+        self.excfeat.extend(vars)
+        self.excfeat = list(set(self.excfeat))
+        self.updateAData()
+
 
     def showData(self, vars = None, data_type = 'norm'):
         """
@@ -857,7 +862,9 @@ class Analyzor(object):
 
          """
 
-        to_drop = ['cellID', 'x_pos', 'y_pos', 'angle']
+        to_drop = ['cellID', 'x_pos', 'y_pos', 'angle','leiden',
+                   'umap_1','umap_2','diffmap_1','diffmap_2','louvain']
+        to_drop = [x for x in to_drop if x in list(self.data['norm'])]
         to_drop.extend(list(x for x in list(self.data['norm']) if x.endswith('_group')))
         to_drop.extend(excluded_features)
 
