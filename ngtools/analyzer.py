@@ -456,6 +456,10 @@ class Analyzor(object):
         self.buildAData()
         self.normAData()
 
+    def updateAData(self):
+        self.buildAData(self.excfeat)
+        self.normAData()
+
 
     def showData(self, vars = None, data_type = 'norm'):
         """
@@ -561,6 +565,7 @@ class Analyzor(object):
 
         """
         self.data['norm'] = centerDAPI(self.data['raw'].copy(), splitBy, nbins, showPlot)
+        self.updateAData()
 
     def findSingleCells(self, byExperiment = True, nbins = 100, spread = 0.4, channel = None):
         """
@@ -587,6 +592,7 @@ class Analyzor(object):
         ss_array = find_SingleCells(self.data['raw'], byExperiment, nbins, spread, channel)
         self.data['raw']['isSingleCell'] = ss_array
         self.data['norm']['isSingleCell'] = ss_array
+        self.updateAData()
 
     def showCells(self, n=None, ch2show=None, order_by=None, fig_height=15, fig_width=40, show_nucleus=True,
                  RGB_contrasts=[3,3,4], uniqID=False, filter = None):
@@ -778,10 +784,12 @@ class Analyzor(object):
         if inplace:
             self.data['raw'] = self.data['raw'].loc[cells,]
             self.data['norm'] = self.data['norm'].loc[cells,]
+            self.updateAData()
         else:
             dat = self.copy()
             dat.data['raw'] = dat.data['raw'].loc[cells,]
             dat.data['norm'] = dat.data['norm'].loc[cells,]
+            dat.updateAData()
 
             return dat
 
@@ -832,6 +840,7 @@ class Analyzor(object):
         normData, normMetadata = intensityNormalisation(self.data['norm'], method, nbins, verbose, hue)
         self.data['norm'] = normData
         self.meta['normMeta'] = normMetadata
+        self.updateAData()
 
     def buildAData(self, excluded_features = []):
         """
