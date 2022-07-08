@@ -743,6 +743,13 @@ class Analyzor(object):
          None.
 
          """
+
+
+        if data_type == "scaled":
+            dat = pd.DataFrame(self.adata.X.copy(), columns=self.adata.var.feature, index=self.adata.obs.index)
+        else:
+            dat = self.data[data_type].copy()
+
         if vars == "all":
             vars = list(self.adata.var.feature)
             dat.boxplot(figsize = (8,6), rot=45, column=vars)
