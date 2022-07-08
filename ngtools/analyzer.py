@@ -768,7 +768,7 @@ class Analyzor(object):
          None.
 
          """
-
+        # TODO: multiple filtering
         if expr != "":
             data = self.data[data_type].copy()
             if cells is not None:
@@ -1075,7 +1075,7 @@ class Analyzor(object):
 
         return dat
 
-
+# TODO: EXPORT DATA
 
 def choose_Cells(self, x=None, y=None, hue=None):
     data = self.data['norm'].copy()
