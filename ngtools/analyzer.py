@@ -1042,15 +1042,20 @@ class Analyzor(object):
 
     def chooseCells(self, x=None, y=None, hue=None, reduction=None, filter = None):
         obj = self.copy()
+
+        if reduction is not None:
+            x = reduction + "_1"
+            y = reduction + "_2"
+
         if type(obj) is str:
             obj.filterCells(expr = filter)
-        dat = choose_Cells(self, x,y,hue,reduction)
+        dat = choose_Cells(obj, x,y,hue)
 
         return dat
 
 
 
-def choose_Cells(self, x=None, y=None, hue=None, reduction=None):
+def choose_Cells(self, x=None, y=None, hue=None):
     data = self.data['norm'].copy()
     fig, ax = plt.subplots(figsize=(8, 8))
     if hue is not None:
