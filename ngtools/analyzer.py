@@ -22,7 +22,7 @@ import matplotlib.pyplot as plt
 import numpy as np
 import warnings
 import scanpy as sc
-from sklearn.preprocessing import StandardScaler, MinMaxScaler, MaxAbsScaler
+from sklearn.preprocessing import StandardScaler, MinMaxScaler, MaxAbsScaler, PowerTransformer
 from PIL import Image, ImageEnhance
 import plotly.graph_objects as go
 from matplotlib_scalebar.scalebar import ScaleBar
@@ -130,6 +130,8 @@ def _normalise_data(X, method="standardscaler", copy=False):
         X = MinMaxScaler().fit_transform(X)
     elif method.lower() == "maxabsscaler":
         X = MaxAbsScaler().fit_transform(X)
+    elif method.lower() == "powertransform":
+        X = PowerTransformer().fit_transform(X)
     else:
         pass
     # logg.info(f"Method '{method}' not supported. Data was not normalised.")
@@ -898,7 +900,7 @@ class Analyzor(object):
         self.adata.var_names = self.adata.var["feature"].to_list()
 
 
-    def normAData(self):
+    def normAData(self, method = "standardscaler"):
         """
          Normalize data for dimensional reduction
 
@@ -908,7 +910,7 @@ class Analyzor(object):
 
          """
         # TODO: SCALE INTENSITIES
-        self.adata.X = _normalise_data(self.adata.X)
+        self.adata.X = _normalise_data(self.adata.X, method = method)
         sc.pp.scale(self.adata, max_value=10)
 
     def showAData(self):
