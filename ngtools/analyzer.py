@@ -557,7 +557,7 @@ class Analyzor(object):
         None.
 
         """
-        self.data['norm'] = centerDAPI(self.data['raw'], splitBy, nbins, showPlot)
+        self.data['norm'] = centerDAPI(self.data['raw'].copy(), splitBy, nbins, showPlot)
 
     def findSingleCells(self, byExperiment = True, nbins = 100, spread = 0.4, channel = None):
         """
