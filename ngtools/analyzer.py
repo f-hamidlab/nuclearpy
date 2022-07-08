@@ -1027,7 +1027,7 @@ class Analyzor(object):
          None.
 
          """
-        fig, ax = plt.subplots(figsize=(4, 4))
+        fig, ax = plt.subplots(figsize=(8, 6))
 
         if method == "umap":
             sc.pl.umap(self.adata, color=hue, frameon=False, ax=ax, legend_loc="on data",
