@@ -695,7 +695,7 @@ def nucleus_layers_fast(image, mask, xscale):
     # get core
     mask_props = regionprops(mask, intensity_image=image)
     total_int = [np.sum(mask_props[n]['image_intensity']) for n in range(len(mask_props))]
-    area_0 = [ceil(mask_props[n]['area']) for n in range(len(mask_props))]
+    area_0 = np.array([ceil(mask_props[n]['area']) for n in range(len(mask_props))])
 
     core_avg_int = []
     core_total_int = []
@@ -729,7 +729,8 @@ def nucleus_layers_fast(image, mask, xscale):
         # get new core mask properties
         core_mask_props = regionprops(core_mask, intensity_image=image)
         area_before = area_after
-        area_after = [ceil(core_mask_props[n]['area']) for n in range(len(core_mask_props))]
+        ids = [core_mask_props[n]['label']-1 for n in range(len(core_mask_props))]
+        area_after[ids] = [ceil(core_mask_props[n]['area']) for n in range(len(core_mask_props))]
 
         to_erode = (np.array(area_after) != np.array(area_before))&(np.array(area_after) > np.array(area_0)/2)
 
