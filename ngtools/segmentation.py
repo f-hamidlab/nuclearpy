@@ -703,6 +703,7 @@ def nucleus_layers_fast(image, mask, xscale):
 
     ## testing, to speeed up identifiying core mask
     to_erode = np.array([True]*len(area_0))
+    to_erode[to_erode<64] = False
     to_erode_index = np.array(list(range(1, len(area_0)+1)))
     area_after = area_0.copy()
     core_mask = mask.copy()
