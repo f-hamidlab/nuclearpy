@@ -1090,8 +1090,8 @@ def removenuclei(masks):
     masks = masks.copy()
 
     # get index of edges
-    y = [5,len(masks)-3]
-    x = [5,len(masks[0])-3]
+    y = [3,len(masks)-3]
+    x = [3,len(masks[0])-3]
 
     # get labels found on edges
     mask_border_x = masks[:,x]
