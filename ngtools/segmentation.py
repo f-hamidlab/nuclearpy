@@ -1085,6 +1085,32 @@ def get_th_array(masks, nucleus):
     bkg = Background2D(nucleus, 3, mask=ignore_mask)
     th = detect_threshold(data=nucleus, nsigma=0, mask_value=0, background=bkg.background)
     return th
+def removenuclei(masks):
+
+    masks = masks.copy()
+
+    # get index of edges
+    y = [5,len(masks)-3]
+    x = [5,len(masks[0])-3]
+
+    # get labels found on edges
+    mask_border_x = masks[:,x]
+    mask_border_y = masks[y]
+    mask_border = np.append(mask_border_x.flatten(), mask_border_y.flatten())
+    mask_border_seg = list(set(mask_border[mask_border>0]))
+
+    # convert edge nuclei masks to 0
+    masks[np.isin(masks, mask_border_seg)] = 0
+
+    props = regionprops(masks)
+    small_nuclei = [props[n]['label'] for n in range(len(props)) if props[n]['area'] < 25]
+
+    masks[np.isin(masks, small_nuclei)] = 0
+
+    return(masks)
+
+
+
 
 
 class NuclearGame_Segmentation(object):
@@ -1307,6 +1333,8 @@ class NuclearGame_Segmentation(object):
                     self.data["channels_info"][self.data["dna_marker"]]].copy()
                 self.data["files"][file]["th_array"] = get_th_array(self.data["files"][file]["masks"],
                                                                     nucleus)
+
+        self.data['files'][file]["masks"] = removenuclei(self.data['files'][file]["masks"])
 
 
 
