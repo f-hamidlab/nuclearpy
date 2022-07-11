@@ -406,6 +406,8 @@ def import_ng_data(path, filename):
         print("Removing spaces from variable names")
         data.colnames = unspaced_colnames
 
+    ## TODO: Set unique cell names
+
     return data
 
 def import_channels_data(path=None, files=None):
