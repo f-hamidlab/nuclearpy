@@ -1073,7 +1073,7 @@ class Analyzor(object):
         sc.tl.dpt(self.adata)
 
     def chooseCells(self, x=None, y=None, hue=None, reduction=None, filter = None):
-        # TODO: Correct colors
+        # TODO: Correct colors when hue is applied. still unsuccessful
         obj = self.copy()
 
         if reduction is not None:
