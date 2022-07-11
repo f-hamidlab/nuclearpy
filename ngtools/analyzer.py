@@ -1086,7 +1086,10 @@ class Analyzor(object):
 
         return dat
 
-# TODO: EXPORT DATA
+    def saveData(self, filename, format = 'csv', data_type = 'norm'):
+        sep = "\t" if format == "tsv" else ","
+        self.data[data_type].to_csv(filename, index=True, sep = sep)
+
 
 def choose_Cells(self, x=None, y=None, hue=None):
     data = self.data['norm'].copy()
