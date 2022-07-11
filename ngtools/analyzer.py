@@ -1156,8 +1156,6 @@ class SelectFromCollection:
             self.fc = np.tile(self.fc, (self.Npts, 1))
         if facecolors is not None: self.fc = facecolors
 
-        self.fc[:, -1] = 0.1
-
         line = {'color': 'grey',
                 'linewidth': 2, 'alpha': 0.8}
         self.lasso = LassoSelector(ax, onselect=self.onselect, lineprops=line)
