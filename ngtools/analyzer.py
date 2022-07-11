@@ -1108,7 +1108,7 @@ def choose_Cells(self, x=None, y=None, hue=None):
             plt.close()
 
     fig.canvas.mpl_connect("key_press_event", accept)
-    ax.set_title("Lasso desired cells and press enter")
+    ax.set_title("Select/unselect points by drawing a lasso, press `Enter` to accept")
 
     plt.show()
 
@@ -1173,14 +1173,12 @@ class SelectFromCollection:
     def onselect(self, verts):
         path = Path(verts)
         ind = np.nonzero(path.contains_points(self.xys))[0]
-        # if any(np.isin(ind, self.ind)):
-        #     print(self.ind)
-        #     print(ind)
-        #     self.ind = self.ind[np.isin(self.ind, ind, invert=True)]
-        #     #self.ind = [ x for x in self.ind if x not in toremove ]
-        tokeep = ind[np.isin(ind, self.ind, invert=True)]
-        self.ind.extend(tokeep)
 
+        if any(np.isin(ind, self.ind)):
+            toremove = ind[list(np.isin(ind, self.ind))]
+            self.ind = list(np.array(self.ind)[list(np.isin(self.ind,toremove, invert=True))])
+            ind = list(np.array(ind)[list(np.isin(ind,toremove, invert=True))])
+        self.ind.extend(np.array(ind)[list(np.isin(ind, self.ind, invert=True))])
 
         self.ind = list(set(self.ind))
         self.update()
