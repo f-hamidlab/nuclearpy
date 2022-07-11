@@ -778,7 +778,6 @@ class Analyzor(object):
          None.
 
          """
-        # TODO: multiple filtering
         if expr != "":
             data = self.data[data_type].copy()
             if cells is not None:
