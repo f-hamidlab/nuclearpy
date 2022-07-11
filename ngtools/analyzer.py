@@ -463,7 +463,7 @@ class Analyzor(object):
         self.normAData()
 
     def excludeVars(self, vars):
-        self.excfeat.extend(vars)
+        self.excfeat = vars
         self.excfeat = list(set(self.excfeat))
         self.updateAData()
 
