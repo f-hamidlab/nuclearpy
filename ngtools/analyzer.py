@@ -173,7 +173,7 @@ def show_cell(data, order_by="areaNucleus", fig_height=15, fig_width=40, show_nu
     # sample cells
     new_df = df.sample(n=no_cells)
     if order_by is not None:
-        new_df = new_df.sort_values(by=order_by, ascending=ascending)
+        new_df = new_df.sort_values(by=order_by, ascending=asc)
 
     # get all available channels
     all_ch = [list(chinfo[l].keys()) for l in chinfo]
