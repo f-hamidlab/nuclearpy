@@ -140,7 +140,7 @@ def _normalise_data(X, method="standardscaler", copy=False):
 
 
 def show_cell(data, order_by="areaNucleus", fig_height=15, fig_width=40, show_nucleus=True,
-              RGB_contrasts=[3,3,4], uniqID=False, channels=None, n = None, chinfo=None):
+              RGB_contrasts=[3,3,4], uniqID=False, channels=None, n = None, chinfo=None, asc = True):
     df = data.copy()
 
     # Ask for the number of cells to show if not provided
@@ -172,6 +172,8 @@ def show_cell(data, order_by="areaNucleus", fig_height=15, fig_width=40, show_nu
 
     # sample cells
     new_df = df.sample(n=no_cells)
+    if order_by is not None:
+        new_df = new_df.sort_values(by=order_by, ascending=ascending)
 
     # get all available channels
     all_ch = [list(chinfo[l].keys()) for l in chinfo]
@@ -601,7 +603,7 @@ class Analyzor(object):
         self.data['norm']['isSingleCell'] = ss_array
         self.updateAData()
 
-    def showCells(self, n=None, ch2show=None, order_by=None, fig_height=15, fig_width=40, show_nucleus=True,
+    def showCells(self, n=None, ch2show=None, order_by=None, ascending = True, fig_height=15, fig_width=40, show_nucleus=True,
                  RGB_contrasts=[3,3,4], uniqID=False, filter = None):
         """
         Display image of cells
@@ -636,7 +638,7 @@ class Analyzor(object):
         if type(filter) is str:
             obj.filterCells(expr = filter)
 
-        show_cell(obj.data['raw'], order_by, fig_height, fig_width, show_nucleus, RGB_contrasts, uniqID, ch2show, n, obj.meta['channels'])
+        show_cell(obj.data['raw'], order_by, fig_height, fig_width, show_nucleus, RGB_contrasts, uniqID, ch2show, n, obj.meta['channels'], ascending)
 
     def rename(self, columns):
         """
