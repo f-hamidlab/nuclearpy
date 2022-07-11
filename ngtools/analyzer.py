@@ -1096,15 +1096,16 @@ def choose_Cells(self, x=None, y=None, hue=None):
         fc = plt.cm.jet(data[hue].astype('category').cat.codes)
     else:
         pts = ax.scatter(data[x], data[y], s=80)
+        fc=None
 
-    selector = SelectFromCollection(ax, pts)
+
+    selector = SelectFromCollection(ax, pts, facecolors=fc)
     out = {'cells': ""}
     def accept(event):
         if event.key == "enter":
             out['index'] = selector.ind
             out['cells'] = list(data.iloc[selector.ind,].index)
             plt.close()
-
 
     fig.canvas.mpl_connect("key_press_event", accept)
     ax.set_title("Lasso desired cells and press enter")
@@ -1139,7 +1140,7 @@ class SelectFromCollection:
         alpha value of 1 and non-selected points to *alpha_other*.
     """
 
-    def __init__(self, ax, collection, alpha_other=0.1):
+    def __init__(self, ax, collection, alpha_other=0.1, facecolors=None):
         self.canvas = ax.figure.canvas
         self.collection = collection
         self.alpha_other = alpha_other
@@ -1153,19 +1154,37 @@ class SelectFromCollection:
             raise ValueError('Collection must have a facecolor')
         elif len(self.fc) == 1:
             self.fc = np.tile(self.fc, (self.Npts, 1))
+        if facecolors is not None: self.fc = facecolors
+
+        self.fc[:, -1] = 0.1
 
         line = {'color': 'grey',
                 'linewidth': 2, 'alpha': 0.8}
         self.lasso = LassoSelector(ax, onselect=self.onselect, lineprops=line)
         self.ind = []
 
-    def onselect(self, verts):
-        path = Path(verts)
-        self.ind = np.nonzero(path.contains_points(self.xys))[0]
+    def update(self):
         self.fc[:, -1] = self.alpha_other
         self.fc[self.ind, -1] = 1
         self.collection.set_facecolors(self.fc)
         self.canvas.draw_idle()
+
+
+    def onselect(self, verts):
+        path = Path(verts)
+        ind = np.nonzero(path.contains_points(self.xys))[0]
+        # if any(np.isin(ind, self.ind)):
+        #     print(self.ind)
+        #     print(ind)
+        #     self.ind = self.ind[np.isin(self.ind, ind, invert=True)]
+        #     #self.ind = [ x for x in self.ind if x not in toremove ]
+        tokeep = ind[np.isin(ind, self.ind, invert=True)]
+        self.ind.extend(tokeep)
+
+
+        self.ind = list(set(self.ind))
+        self.update()
+
 
     def disconnect(self):
         self.lasso.disconnect_events()
