@@ -1884,6 +1884,7 @@ class NuclearGame_Segmentation(object):
         for file in tqdm(self.data["files"]):
 
             self.data["files"][file]["nuclear_features"]["spatial_entropy"] = []
+            outlist = dict((key, 0) for key in self.data["files"][file]["nuclear_features"]["cellID"])
 
             masks = self.data["files"][file]["masks"].copy()
             nucleus = self.data["files"][file]['working_array'][
@@ -1904,11 +1905,9 @@ class NuclearGame_Segmentation(object):
             signal_pd['group'] = signal_pd['group'] + 1
             out = signal_pd.groupby('cellID').apply(lambda x: leibovici_entropy(np.array(x[["y_coord","x_coord"]]), np.intc(x["group"]), d=5).entropy)
 
-            self.data["files"][file]["nuclear_features"]["spatial_entropy"] = round(out, 3)
+            outlist.update(zip(out.index.to_numpy().astype(int), out.values))
 
-
-
-
+            self.data["files"][file]["nuclear_features"]["spatial_entropy"] = np.round(list(outlist.values()),3)
 
 
     def positive2marker(self, frac_covered = 0.8, thresh_method = "triangle"):
