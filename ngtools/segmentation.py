@@ -1759,6 +1759,8 @@ class NuclearGame_Segmentation(object):
 
             self.data["files"][file]["nuclear_features"]["dna_dots"] = []
             self.data["files"][file]["nuclear_features"]["dna_dots_size_median"] = []
+            outlist = dict((key, 0) for key in self.data["files"][file]["nuclear_features"]["cellID"])
+            area_outlist = dict((key, 0) for key in self.data["files"][file]["nuclear_features"]["cellID"])
 
             masks = self.data["files"][file]["masks"].copy()
 
@@ -1787,18 +1789,16 @@ class NuclearGame_Segmentation(object):
 
             mapped_peaks = masks[dots_df["ycentroid"].to_list(), dots_df["xcentroid"].to_list()]
             unique, counts = np.unique(mapped_peaks, return_counts=True)
-            outlist = np.zeros(len(self.data["files"][file]["nuclear_features"]["cellID"]))
-            unique = unique - 1
-            outlist[unique] = counts
-            self.data["files"][file]["nuclear_features"]["dna_dots"] = outlist
+            outlist.update(zip(unique, counts))
+            self.data["files"][file]["nuclear_features"]["dna_dots"] = list(outlist.values())
 
-            dots_df["cell"] = mapped_peaks-1
+
+            dots_df["cell"] = mapped_peaks
             median_area = dots_df.groupby('cell')['area'].median()
             median_area = median_area * (self.data["files"][file]['metadata']['XScale'] * self.data["files"][file]['metadata']['YScale'])
+            area_outlist.update(zip(median_area.index.to_numpy().astype(int), median_area.values))
 
-            area_outlist = np.zeros(len(self.data["files"][file]["nuclear_features"]["cellID"]))
-            area_outlist[median_area.index.to_numpy().astype(int)] = median_area.values
-            self.data["files"][file]["nuclear_features"]["dna_dots_size_median"] = np.round(area_outlist,3)
+            self.data["files"][file]["nuclear_features"]["dna_dots_size_median"] = np.round(list(area_outlist.values()),3)
 
 
             # for cell in self.data["files"][file]["nuclear_features"]["cellID"]:
