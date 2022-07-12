@@ -177,7 +177,7 @@ def show_cell(data, order_by="areaNucleus", fig_height=15, fig_width=40, show_nu
 
     # get all available channels
     all_ch = [list(chinfo[l].keys()) for l in chinfo]
-    all_ch = set(sum(all_ch, ["None"]))
+    all_ch = set(sum(all_ch, ["none"]))
     if channels is None:
 
 
@@ -195,7 +195,7 @@ def show_cell(data, order_by="areaNucleus", fig_height=15, fig_width=40, show_nu
             dropped = set(channels.values()).difference(set(dct_colors.values()))
             print(f'{len(dropped)} channel [{", ".join(dropped)}] not available and dropped')
 
-    dct_colors = {k: v for k, v in dct_colors.items() if v != "None"}
+    dct_colors = {k: v for k, v in dct_colors.items() if v != "none"}
 
 
     # Generate the figure
