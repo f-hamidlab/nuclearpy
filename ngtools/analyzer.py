@@ -8,7 +8,7 @@ Created on Mon Mar 15 20:52:32 2021
 #############################################
 #                 Imports                   #
 #############################################
-
+from math import ceil
 import cv2
 import anndata
 import pandas as pd
@@ -199,23 +199,11 @@ def show_cell(data, order_by="areaNucleus", fig_height=15, fig_width=40, show_nu
 
 
     # Generate the figure
-    if no_cells <= 5:
-        fig, axes = plt.subplots(nrows=no_cells, ncols=1, sharex=True, sharey=True,
-                                 figsize=(int(fig_width) / 2.54, (int(fig_height) / 2.54) * no_cells))
-    elif no_cells > 5 and no_cells <= 10:
-        fig, axes = plt.subplots(nrows=2, ncols=5, sharex=True, sharey=True,
-                                 figsize=(int(fig_width) / 2.54, (int(fig_height) / 2.54)))
-    elif no_cells > 10:
-        if int(str(no_cells)[-1]) > 5:
-            fig, axes = plt.subplots(nrows=((no_cells // 5) + 1), ncols=5, sharex=True, sharey=True,
-                                     figsize=(int(fig_width) / 2.54, (int(fig_height) / 2.54) * ((no_cells // 10) + 1)))
-        elif int(str(no_cells)[-1]) <= 5 and int(str(no_cells)[-1]) > 0:
-            fig, axes = plt.subplots(nrows=(no_cells // 5 + 1), ncols=5, sharex=True, sharey=True,
-                                     figsize=(
-                                     int(fig_width) / 2.54, (int(fig_height) / 2.54) * ((no_cells // 10) + 0.5)))
-        elif int(str(no_cells)[-1]) == 0:
-            fig, axes = plt.subplots(nrows=(no_cells // 5), ncols=5, sharex=True, sharey=True,
-                                     figsize=(int(fig_width) / 2.54, (int(fig_height) / 2.54) * (no_cells // 10)))
+    figrows = ceil(no_cells/5)
+    figcols = no_cells%5 if no_cells < 5 else 5
+
+    fig, axes = plt.subplots(nrows=figrows, ncols=figcols, sharex=True, sharey=True,
+                             figsize=(((int(fig_width) / 2.54)*figcols),(int(fig_height) / 2.54) * figrows))
 
     ax = axes.ravel()
 
