@@ -460,6 +460,9 @@ class Analyzor(object):
         self.excfeat = list(set(self.excfeat))
         self.updateAData()
 
+    def __getitem__(self, key, data_type="norm"):
+        return self.data[data_type][key].to_list()
+
 
     def showData(self, vars = None, data_type = 'norm'):
         """
