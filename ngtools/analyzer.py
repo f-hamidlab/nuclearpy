@@ -776,13 +776,9 @@ class Analyzor(object):
             data = self.data[data_type].copy()
             if cells is not None:
                 print("`filter` and `cells` arguments given, using result from `filter` only")
-            if type(filter) == list:
-                len_expr = len(filter)
-                if len_expr == self.nrow():
-                    cells = data[filter].index.to_list()
-                else:
-                    raise Exception("TEST")
-            if type(filter) == str:
+            if all([type(i)==bool for i in filter]) and len(filter) == self.nrow():
+                cells = data[filter].index.to_list()
+            elif type(filter) == str:
                 expr_split = filter.split()
                 eval_expr = "".join(["data['", expr_split[0], "']", expr_split[1], expr_split[2]])
                 cells = data[eval(eval_expr)].index.to_list()
