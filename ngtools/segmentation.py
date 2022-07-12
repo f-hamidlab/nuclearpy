@@ -1703,6 +1703,7 @@ class NuclearGame_Segmentation(object):
         for file in tqdm(self.data["files"]):
 
             self.data["files"][file]["nuclear_features"]["dna_peaks"] = []
+            outlist = dict((key,0) for key in self.data["files"][file]["nuclear_features"]["cellID"])
 
             masks = self.data["files"][file]["masks"].copy()
 
@@ -1730,11 +1731,10 @@ class NuclearGame_Segmentation(object):
             merged_peak_df = peak_df.iloc[round_peak_df.index,]
             mapped_peaks = masks[merged_peak_df["y_peak"].to_list(), merged_peak_df["x_peak"].to_list()]
             unique, counts = np.unique(mapped_peaks, return_counts=True)
-            outlist = np.zeros(len(self.data["files"][file]["nuclear_features"]["cellID"]))
-            unique = unique - 1
-            outlist[unique] = counts
+            outlist.update(zip(unique, counts))
 
-            self.data["files"][file]["nuclear_features"]["dna_peaks"] = outlist
+
+            self.data["files"][file]["nuclear_features"]["dna_peaks"] = list(outlist.values())
 
 
 
