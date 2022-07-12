@@ -626,7 +626,7 @@ class Analyzor(object):
 
         obj = self.copy()
         if type(filter) is str:
-            obj.filterCells(expr = filter)
+            obj.filterCells(filter = filter)
 
         show_cell(obj.data['raw'], order_by, fig_height, fig_width, show_nucleus, RGB_contrasts, uniqID, ch2show, n, obj.meta['channels'], ascending)
 
@@ -686,7 +686,7 @@ class Analyzor(object):
 
         obj = self.copy()
         if type(filter) is str:
-            obj.filterCells(expr = filter)
+            obj.filterCells(filter = filter)
 
         dat = obj.data[data_type].copy()
         if shuffle:
@@ -750,13 +750,13 @@ class Analyzor(object):
         else:
             dat.boxplot(rot=90, column=vars, figsize = (8,6))
 
-    def filterCells(self, expr = "", data_type = 'norm', cells = None, inplace = True):
+    def filterCells(self, filter = "", data_type = 'norm', cells = None, inplace = True):
         """
          Filter cells by feature values
 
          Parameters
          ----------
-         expr : string or bool list
+         filter : string or bool list
              Can be a string that describes the logical expression to filter cells by. E.g.
              "nuclear_area > 50" or "experiment == 'induced'". Can also be a list of boolean
              of length similar to the number of cells in object
@@ -764,24 +764,26 @@ class Analyzor(object):
              Whether to plot "raw" data or "norm" data
         cells : string list
             Optional: list of string contain index of cells to retain.
+        inplace : bool
+            Whether to overwrite object data
 
          Returns
          -------
          None.
 
          """
-        if expr != "":
+        if filter != "":
             data = self.data[data_type].copy()
             if cells is not None:
-                print("`expr` and `cells` arguments given, using result from `expr` only")
-            if type(expr) == list:
-                len_expr = len(expr)
+                print("`filter` and `cells` arguments given, using result from `filter` only")
+            if type(filter) == list:
+                len_expr = len(filter)
                 if len_expr == self.nrow():
-                    cells = data[expr].index.to_list()
+                    cells = data[filter].index.to_list()
                 else:
                     raise Exception("TEST")
-            if type(expr) == str:
-                expr_split = expr.split()
+            if type(filter) == str:
+                expr_split = filter.split()
                 eval_expr = "".join(["data['", expr_split[0], "']", expr_split[1], expr_split[2]])
                 cells = data[eval(eval_expr)].index.to_list()
         elif type(cells) is dict:
@@ -1073,7 +1075,7 @@ class Analyzor(object):
             y = reduction + "_2"
 
         if type(obj) is str:
-            obj.filterCells(expr = filter)
+            obj.filterCells(filter = filter)
         dat = choose_Cells(obj, x,y,hue)
 
         return dat
