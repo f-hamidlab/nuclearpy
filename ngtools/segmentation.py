@@ -1309,9 +1309,11 @@ class NuclearGame_Segmentation(object):
                 self.data["files"][file]["masks"], self.data["files"][file]["flows"] = _cellpose(nuclei,
                                                                                      diameter = diameter,
                                                                                        GPU = GPU)
-         	self.data['files'][file]["masks"] = removenuclei(self.data['files'][file]["masks"])
-       		nucleus = self.data["files"][file]['working_array'][self.data["channels_info"][self.data["dna_marker"]]].copy()
-       		self.data["files"][file]["th_array"] = get_th_array(self.data["files"][file]["masks"], nucleus)
+                self.data['files'][file]["masks"] = removenuclei(self.data['files'][file]["masks"])
+                nucleus = self.data["files"][file]['working_array'][
+                    self.data["channels_info"][self.data["dna_marker"]]].copy()
+                self.data["files"][file]["th_array"] = get_th_array(self.data["files"][file]["masks"], nucleus)
+
  
 
 
@@ -1330,11 +1332,10 @@ class NuclearGame_Segmentation(object):
                     dc_scaleCorr = 1
                 self.data["files"][file]["masks"] = _deepcell(image = nuclei,
                                                               scale = self.data["files"][file]['metadata']['XScale'] * dc_scaleCorr)
-
-       		self.data['files'][file]["masks"] = removenuclei(self.data['files'][file]["masks"])
-       		nucleus = self.data["files"][file]['working_array'][self.data["channels_info"][self.data["dna_marker"]]].copy()
-       		self.data["files"][file]["th_array"] = get_th_array(self.data["files"][file]["masks"], nucleus)
-
+                self.data['files'][file]["masks"] = removenuclei(self.data['files'][file]["masks"])
+                nucleus = self.data["files"][file]['working_array'][
+                    self.data["channels_info"][self.data["dna_marker"]]].copy()
+                self.data["files"][file]["th_array"] = get_th_array(self.data["files"][file]["masks"], nucleus)
 
 
 
