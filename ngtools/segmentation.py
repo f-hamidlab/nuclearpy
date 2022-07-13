@@ -1783,14 +1783,13 @@ class NuclearGame_Segmentation(object):
             dots_df = cat.to_table(columns).to_pandas()
             dots_df['xcentroid'] = dots_df[['xcentroid']].astype(int)
             dots_df['ycentroid'] = dots_df['ycentroid'].astype(int)
+            dots_df["cell"] = masks[dots_df["ycentroid"].to_list(), dots_df["xcentroid"].to_list()]
+            dots_df = dots_df[dots_df["cell"] != 0]  # ensure removal of dots from non-masks
 
-            mapped_peaks = masks[dots_df["ycentroid"].to_list(), dots_df["xcentroid"].to_list()]
-            unique, counts = np.unique(mapped_peaks, return_counts=True)
+            unique, counts = np.unique(dots_df["cell"], return_counts=True)
             outlist.update(zip(unique, counts))
             self.data["files"][file]["nuclear_features"]["dna_dots"] = list(outlist.values())
 
-
-            dots_df["cell"] = mapped_peaks
             median_area = dots_df.groupby('cell')['area'].median()
             median_area = median_area * (self.data["files"][file]['metadata']['XScale'] * self.data["files"][file]['metadata']['YScale'])
             area_outlist.update(zip(median_area.index.to_numpy().astype(int), median_area.values))
