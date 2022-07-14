@@ -492,9 +492,9 @@ class Analyzor(object):
         """
         dat = self.data[data_type]
         if vars != None:
-            print(dat[vars])
+            return dat[vars]
         else:
-            print(dat)
+            return dat
 
     def features(self):
         """
@@ -522,7 +522,7 @@ class Analyzor(object):
 
         """
         dat = self.data['raw']
-        print(dat[vars].value_counts())
+        return dat[vars].value_counts()
 
     def shape(self):
         """
@@ -533,7 +533,7 @@ class Analyzor(object):
         None.
 
         """
-        print(self.data['raw'].shape)
+        return self.data['raw'].shape
 
     def nfeatures(self):
         """
@@ -544,7 +544,7 @@ class Analyzor(object):
         None.
 
         """
-        print(self.data['raw'].shape[1])
+        return self.data['raw'].shape[1]
 
     def ncells(self):
         """
@@ -555,7 +555,7 @@ class Analyzor(object):
         None.
 
         """
-        print(self.data['raw'].shape[0])
+        return self.data['raw'].shape[0]
 
     def ctrDAPI(self, splitBy = "experiment", nbins = 100, showPlot = True):
         """
