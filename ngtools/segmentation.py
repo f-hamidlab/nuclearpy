@@ -1083,7 +1083,7 @@ def get_th_array(masks, nucleus):
     ignore_mask = ignore_mask.astype(bool)
 
     bkg = Background2D(nucleus, 3, mask=ignore_mask)
-    th = detect_threshold(data=nucleus, nsigma=0, mask_value=0, background=bkg.background)
+    th = detect_threshold(data=nucleus, nsigma=0, mask=0, background=bkg.background)
     return th
 def removenuclei(masks):
 
