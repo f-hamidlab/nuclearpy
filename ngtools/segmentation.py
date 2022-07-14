@@ -2009,6 +2009,10 @@ class NuclearGame_Segmentation(object):
             if ch == self.data["dna_marker"]:
                 continue
             img_concat = cv2.vconcat([self.data["files"][file]['working_array'][self.data["channels_info"][ch]] for file in files])
+# ravel
+# sample for 1 image 
+# cluster 
+# predict
             kmeans = KMeans(n_clusters = n_groups, random_state = 0).fit(img_concat.reshape((-1, 1)))
             thresholds = kmeans.cluster_centers_.squeeze()
             for file in self.data["files"]:
