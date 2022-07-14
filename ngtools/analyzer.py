@@ -390,7 +390,7 @@ def import_ng_data(path, pattern):
         df["path2ong"] = file
         data_array.append(df)
     data = pd.concat(data_array, axis=0, ignore_index=True)
-    data = remove_name_sapces(data)
+    data = remove_name_spaces(data)
 
 
 
@@ -398,7 +398,7 @@ def import_ng_data(path, pattern):
 
     return data
 
-def remove_name_sapces(df):
+def remove_name_spaces(df):
     unspaced_colnames = [name if not " " in name else name.replace(" ", "") for name in df.columns]
     if any(df.columns != unspaced_colnames):
         print("Removing spaces from variable names")
