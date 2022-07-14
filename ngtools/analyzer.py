@@ -788,7 +788,7 @@ class Analyzor(object):
             data = self.data[data_type].copy()
             if cells is not None:
                 print("`filter` and `cells` arguments given, using result from `filter` only")
-            if all([type(i)==bool for i in filter]) and len(filter) == self.nrow():
+            if all([type(i)==bool for i in filter]) and (len(filter) == self.ncells()):
                 cells = data[filter].index.to_list()
             elif type(filter) == str:
                 expr_split = filter.split()
