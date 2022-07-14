@@ -30,6 +30,7 @@ from matplotlib_scalebar.scalebar import ScaleBar
 from matplotlib.widgets import LassoSelector
 from matplotlib.path import Path
 import operator
+from fnmatch import fnmatchcase
 
 warnings.filterwarnings('ignore')
 sc.settings.verbosity = 3
@@ -378,8 +379,8 @@ def centerDAPI(data, splitBy="experiment", nbins=100, showPlot=True):
 
     return data
 
-def import_ng_data(path, filename):
-    files = [os.path.join(dp, f) for dp, dn, filenames in os.walk(path) for f in filenames if f == filename]
+def import_ng_data(path, pattern):
+    files = [os.path.join(dp, f) for dp, dn, filenames in os.walk(path) for f in filenames if fnmatchcase(f, pattern)]
 
     data_array = []
     for file in files:
@@ -415,7 +416,7 @@ def import_channels_data(path=None, files=None):
 
 class Analyzor(object):
 
-    def __init__(self, exp_dir=None, filename="output.csv", collated_csv=None):
+    def __init__(self, exp_dir=None, pattern="output*.csv", collated_csv=None):
         """
         Create an Analyzer object
         Parameters
@@ -443,7 +444,7 @@ class Analyzor(object):
             files = [txt.replace("output.csv","channels_info.json") for txt in files]
             self.meta = {"channels": import_channels_data(files = files)}
         else:
-            dat = import_ng_data(exp_dir, filename)
+            dat = import_ng_data(exp_dir, pattern)
             self.data = {"raw": dat, "norm": dat}
             self.meta = {"channels": import_channels_data(exp_dir)}
         self.adata = ""
