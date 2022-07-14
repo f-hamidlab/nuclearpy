@@ -127,7 +127,7 @@ def test_marker_group():
 
     first_5_cell_group_info = [ngs.data["files"][file]["nuclear_features"][ft][0:5] for ft in
                                ["ch1_group", "ch2_group", "ch3_group"]]
-    custom_assert(first_5_cell_group_info, [[2, 2, 2, 2, 2], [3, 1, 1, 1, 1], [2, 1, 1, 1, 1]],
+    custom_assert(first_5_cell_group_info, [[2, 1, 2, 1, 1], [3, 1, 1, 1, 1], [2, 0, 1, 0, 0]],
                   "Get info for first 5 cells")
 
 
@@ -141,4 +141,4 @@ def test_final_obj_length():
         dct_df[ft] = [l for file in ngs.data["files"] for l in ngs.data["files"][file]["nuclear_features"][ft]]
 
     lengths = [len(dct_df[ft]) for ft in lst_fts]
-    custom_assert(lengths == [203] * 38, True, "Test lengths of outputs")
+    custom_assert(lengths == [159] * 38, True, "Test lengths of outputs")
