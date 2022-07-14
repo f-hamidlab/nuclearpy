@@ -171,11 +171,11 @@ def get_metadata_czi(filename, dim2none=False):
         print('Key not found:', e)
         metadata['PixelType'] = None
 
-    metadata['SizeX'] = np.int(metadata['Information']['Image']['SizeX'])
-    metadata['SizeY'] = np.int(metadata['Information']['Image']['SizeY'])
+    metadata['SizeX'] = int(metadata['Information']['Image']['SizeX'])
+    metadata['SizeY'] = int(metadata['Information']['Image']['SizeY'])
 
     try:
-        metadata['SizeZ'] = np.int(metadata['Information']['Image']['SizeZ'])
+        metadata['SizeZ'] = int(metadata['Information']['Image']['SizeZ'])
     except:
         if dim2none:
             metadata['SizeZ'] = None
@@ -183,7 +183,7 @@ def get_metadata_czi(filename, dim2none=False):
             metadata['SizeZ'] = 1
 
     try:
-        metadata['SizeC'] = np.int(metadata['Information']['Image']['SizeC'])
+        metadata['SizeC'] = int(metadata['Information']['Image']['SizeC'])
     except:
         if dim2none:
             metadata['SizeC'] = None
@@ -205,7 +205,7 @@ def get_metadata_czi(filename, dim2none=False):
     metadata['Channels'] = channels
 
     try:
-        metadata['SizeT'] = np.int(metadata['Information']['Image']['SizeT'])
+        metadata['SizeT'] = int(metadata['Information']['Image']['SizeT'])
     except:
         if dim2none:
             metadata['SizeT'] = None
@@ -213,7 +213,7 @@ def get_metadata_czi(filename, dim2none=False):
             metadata['SizeT'] = 1
 
     try:
-        metadata['SizeM'] = np.int(metadata['Information']['Image']['SizeM'])
+        metadata['SizeM'] = int(metadata['Information']['Image']['SizeM'])
     except:
         if dim2none:
             metadata['SizeM'] = None
@@ -221,7 +221,7 @@ def get_metadata_czi(filename, dim2none=False):
             metadata['SizeM'] = 1
 
     try:
-        metadata['SizeB'] = np.int(metadata['Information']['Image']['SizeB'])
+        metadata['SizeB'] = int(metadata['Information']['Image']['SizeB'])
     except:
 
         if dim2none:
@@ -230,7 +230,7 @@ def get_metadata_czi(filename, dim2none=False):
             metadata['SizeB'] = 1
 
     try:
-        metadata['SizeS'] = np.int(metadata['Information']['Image']['SizeS'])
+        metadata['SizeS'] = int(metadata['Information']['Image']['SizeS'])
     except:
         if dim2none:
             metadata['SizeS'] = None
@@ -300,7 +300,7 @@ def get_metadata_czi(filename, dim2none=False):
             metadata['ObjImmersion'] = None
 
         try:
-            metadata['ObjNA'] = np.float(metadata['Instrument']['Objectives']['Objective']['LensNA'])
+            metadata['ObjNA'] = float(metadata['Instrument']['Objectives']['Objective']['LensNA'])
         except:
             metadata['ObjNA'] = None
 
@@ -310,12 +310,12 @@ def get_metadata_czi(filename, dim2none=False):
             metadata['ObjID'] = None
 
         try:
-            metadata['TubelensMag'] = np.float(metadata['Instrument']['TubeLenses']['TubeLens']['Magnification'])
+            metadata['TubelensMag'] = float(metadata['Instrument']['TubeLenses']['TubeLens']['Magnification'])
         except:
             metadata['TubelensMag'] = None
 
         try:
-            metadata['ObjNominalMag'] = np.float(metadata['Instrument']['Objectives']['Objective']['NominalMagnification'])
+            metadata['ObjNominalMag'] = float(metadata['Instrument']['Objectives']['Objective']['NominalMagnification'])
         except KeyError as e:
             print('Key not found:', e)
             metadata['ObjNominalMag'] = None
