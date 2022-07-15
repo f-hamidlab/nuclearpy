@@ -9,7 +9,7 @@ import numpy as np
 # TODO: Update test outputs
 
 def custom_assert(actual, expected, test_name=""):
-    assert actual == expected, f"Error in {test_name}, expected {expected} but got {actual}"
+    assert actual == expected, f"\tError in {test_name}\n\texpected {expected} \n\tbut got {actual}\n\n"
 
 
 #############################################
@@ -121,13 +121,13 @@ def test_spat_entropy():
 
 
 def test_marker_group():
-    ngs.markerGroup(n_groups=5, sample_size=10)
+    ngs.markerGroup(n_groups=5)
     file = "Snap-120"
     custom_assert(len(ngs.data["files"][file]["nuclear_features"]), 38, "Get new number of nuclear features")
 
     first_5_cell_group_info = [ngs.data["files"][file]["nuclear_features"][ft][0:5] for ft in
                                ["ch1_group", "ch2_group", "ch3_group"]]
-    custom_assert(first_5_cell_group_info, [[2, 1, 2, 1, 1], [3, 1, 1, 1, 1], [2, 0, 1, 0, 0]],
+    custom_assert(first_5_cell_group_info, [[2, 1, 1, 1, 1], [2, 0, 0, 0, 0], [1, 0, 0, 0, 0]],
                   "Get info for first 5 cells")
 
 
