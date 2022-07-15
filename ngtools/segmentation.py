@@ -1978,7 +1978,7 @@ class NuclearGame_Segmentation(object):
                     _class = stats.mode(regions[mask == cell])[0][0]
                     self.data["files"][file]["nuclear_features"][f"{ch}_class"].append(_class)
 
-    def markerGroup(self, n_groups = 5, sample_size = None):
+    def markerGroup(self, n_groups = 5):
         """
         Assign a group to each cell according to marker intensity using KMeans.
 
@@ -1986,25 +1986,13 @@ class NuclearGame_Segmentation(object):
         ----------
         n_groups : int, optional
             Number of groups in which to classify marker intensity. The default is 5.
-        sample_size : int, optional
-            Number of images to use to determine thresholds. The default is None (uses all images).
-            A large number of samples (n > 10) is computationally extensive.
 
         Returns
         -------
         None.
 
         """
-        if sample_size is None:
-            files = [file for file in self.data["files"]]
-        else:
-            n_files = len(self.data["files"])
-            files = [file for file in self.data["files"]]
-            if n_files > sample_size:
-                files = random.sample(files, sample_size)
-            else:
-                print(f"Given sample size ({sample_size}) is larger than (or equal to) the total number of samples ({len(files)}). Using all samples to determine thresholds.")
-
+        files = [file for file in self.data["files"]]
         for ch in tqdm(self.data["channels_info"]):
             if ch == self.data["dna_marker"]:
                 continue
