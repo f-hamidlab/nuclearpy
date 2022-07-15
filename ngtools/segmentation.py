@@ -2000,9 +2000,12 @@ class NuclearGame_Segmentation(object):
             img_flatten = img_concat.flatten()
             img_sampled = np.random.choice(img_flatten, replace=False, size = self.data["files"][files[0]]['masks'].size)
             kmeans = KMeans(n_clusters = n_groups, random_state = 0).fit(img_sampled.reshape((-1, 1)))
+            idx = np.argsort(kmeans.cluster_centers_.sum(axis=1))
+            lut = np.zeros_like(idx)
+            lut[idx] = np.arange(n_groups)
             for file in self.data["files"]:
                 ch_int = np.array(self.data["files"][file]["nuclear_features"][f"avg_intensity_{ch}"])
-                self.data["files"][file]["nuclear_features"][f"{ch}_group"] = kmeans.predict(ch_int.reshape((-1,1)))
+                self.data["files"][file]["nuclear_features"][f"{ch}_group"] = list(lut[list(kmeans.predict(ch_int.reshape((-1,1))))])
 
 
     def get_lst_features(self):
