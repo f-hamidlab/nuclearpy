@@ -724,9 +724,9 @@ class Analyzor(object):
                                  data = dat,
                                  palette = "Set3", bw = .2, hue = hue)
         if x_trans != None:
-            fig.set(xscale=x_trans)
+            ax.set(xscale=x_trans)
         if y_trans != None:
-            fig.set(yscale=y_trans)
+            ax.set(yscale=y_trans)
         if x_rot != None:
             plt.xticks(rotation=x_rot, ha="right")
 
