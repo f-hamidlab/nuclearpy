@@ -171,11 +171,11 @@ def get_metadata_czi(filename, dim2none=False):
         print('Key not found:', e)
         metadata['PixelType'] = None
 
-    metadata['SizeX'] = np.int(metadata['Information']['Image']['SizeX'])
-    metadata['SizeY'] = np.int(metadata['Information']['Image']['SizeY'])
+    metadata['SizeX'] = int(metadata['Information']['Image']['SizeX'])
+    metadata['SizeY'] = int(metadata['Information']['Image']['SizeY'])
 
     try:
-        metadata['SizeZ'] = np.int(metadata['Information']['Image']['SizeZ'])
+        metadata['SizeZ'] = int(metadata['Information']['Image']['SizeZ'])
     except:
         if dim2none:
             metadata['SizeZ'] = None
@@ -183,7 +183,7 @@ def get_metadata_czi(filename, dim2none=False):
             metadata['SizeZ'] = 1
 
     try:
-        metadata['SizeC'] = np.int(metadata['Information']['Image']['SizeC'])
+        metadata['SizeC'] = int(metadata['Information']['Image']['SizeC'])
     except:
         if dim2none:
             metadata['SizeC'] = None
@@ -205,7 +205,7 @@ def get_metadata_czi(filename, dim2none=False):
     metadata['Channels'] = channels
 
     try:
-        metadata['SizeT'] = np.int(metadata['Information']['Image']['SizeT'])
+        metadata['SizeT'] = int(metadata['Information']['Image']['SizeT'])
     except:
         if dim2none:
             metadata['SizeT'] = None
@@ -213,7 +213,7 @@ def get_metadata_czi(filename, dim2none=False):
             metadata['SizeT'] = 1
 
     try:
-        metadata['SizeM'] = np.int(metadata['Information']['Image']['SizeM'])
+        metadata['SizeM'] = int(metadata['Information']['Image']['SizeM'])
     except:
         if dim2none:
             metadata['SizeM'] = None
@@ -221,7 +221,7 @@ def get_metadata_czi(filename, dim2none=False):
             metadata['SizeM'] = 1
 
     try:
-        metadata['SizeB'] = np.int(metadata['Information']['Image']['SizeB'])
+        metadata['SizeB'] = int(metadata['Information']['Image']['SizeB'])
     except:
 
         if dim2none:
@@ -230,7 +230,7 @@ def get_metadata_czi(filename, dim2none=False):
             metadata['SizeB'] = 1
 
     try:
-        metadata['SizeS'] = np.int(metadata['Information']['Image']['SizeS'])
+        metadata['SizeS'] = int(metadata['Information']['Image']['SizeS'])
     except:
         if dim2none:
             metadata['SizeS'] = None
@@ -300,7 +300,7 @@ def get_metadata_czi(filename, dim2none=False):
             metadata['ObjImmersion'] = None
 
         try:
-            metadata['ObjNA'] = np.float(metadata['Instrument']['Objectives']['Objective']['LensNA'])
+            metadata['ObjNA'] = float(metadata['Instrument']['Objectives']['Objective']['LensNA'])
         except:
             metadata['ObjNA'] = None
 
@@ -310,12 +310,12 @@ def get_metadata_czi(filename, dim2none=False):
             metadata['ObjID'] = None
 
         try:
-            metadata['TubelensMag'] = np.float(metadata['Instrument']['TubeLenses']['TubeLens']['Magnification'])
+            metadata['TubelensMag'] = float(metadata['Instrument']['TubeLenses']['TubeLens']['Magnification'])
         except:
             metadata['TubelensMag'] = None
 
         try:
-            metadata['ObjNominalMag'] = np.float(metadata['Instrument']['Objectives']['Objective']['NominalMagnification'])
+            metadata['ObjNominalMag'] = float(metadata['Instrument']['Objectives']['Objective']['NominalMagnification'])
         except KeyError as e:
             print('Key not found:', e)
             metadata['ObjNominalMag'] = None
@@ -1083,7 +1083,7 @@ def get_th_array(masks, nucleus):
     ignore_mask = ignore_mask.astype(bool)
 
     bkg = Background2D(nucleus, 3, mask=ignore_mask)
-    th = detect_threshold(data=nucleus, nsigma=0, mask_value=0, background=bkg.background)
+    th = detect_threshold(data=nucleus, nsigma=0, mask=0, background=bkg.background)
     return th
 def removenuclei(masks):
 
@@ -1978,7 +1978,7 @@ class NuclearGame_Segmentation(object):
                     _class = stats.mode(regions[mask == cell])[0][0]
                     self.data["files"][file]["nuclear_features"][f"{ch}_class"].append(_class)
 
-    def markerGroup(self, n_groups = 5, sample_size = None):
+    def markerGroup(self, n_groups = 5):
         """
         Assign a group to each cell according to marker intensity using KMeans.
 
@@ -1986,41 +1986,27 @@ class NuclearGame_Segmentation(object):
         ----------
         n_groups : int, optional
             Number of groups in which to classify marker intensity. The default is 5.
-        sample_size : int, optional
-            Number of images to use to determine thresholds. The default is None (uses all images).
-            A large number of samples (n > 10) is computationally extensive.
 
         Returns
         -------
         None.
 
         """
-        if sample_size is None:
-            files = [file for file in self.data["files"]]
-        else:
-            n_files = len(self.data["files"])
-            files = [file for file in self.data["files"]]
-            if n_files > sample_size:
-                files = random.sample(files, sample_size)
-            else:
-                print(f"Given sample size ({sample_size}) is larger than (or equal to) the total number of samples ({len(files)}). Using all samples to determine thresholds.")
-
+        files = [file for file in self.data["files"]]
         for ch in tqdm(self.data["channels_info"]):
             if ch == self.data["dna_marker"]:
                 continue
             img_concat = cv2.vconcat([self.data["files"][file]['working_array'][self.data["channels_info"][ch]] for file in files])
-            kmeans = KMeans(n_clusters = n_groups, random_state = 0).fit(img_concat.reshape((-1, 1)))
-            thresholds = kmeans.cluster_centers_.squeeze()
+            img_flatten = img_concat.flatten()
+            img_sampled = np.random.choice(img_flatten, replace=False, size = self.data["files"][files[0]]['masks'].size)
+            kmeans = KMeans(n_clusters = n_groups, random_state = 0).fit(img_sampled.reshape((-1, 1)))
+            idx = np.argsort(kmeans.cluster_centers_.sum(axis=1))
+            lut = np.zeros_like(idx)
+            lut[idx] = np.arange(n_groups)
             for file in self.data["files"]:
-                image = self.data["files"][file]['working_array'][self.data["channels_info"][ch]]
-                mask = self.data["files"][file]["masks"]
-                regions = np.digitize(image, bins = sorted(thresholds))
-                self.data["files"][file]["nuclear_features"][f"{ch}_group"] = []
-                for cell in self.data["files"][file]["nuclear_features"]["cellID"]:
-                    if cell == 0:
-                        continue
-                    group = stats.mode(regions[mask == cell])[0][0]
-                    self.data["files"][file]["nuclear_features"][f"{ch}_group"].append(group)
+                ch_int = np.array(self.data["files"][file]["nuclear_features"][f"avg_intensity_{ch}"])
+                self.data["files"][file]["nuclear_features"][f"{ch}_group"] = list(lut[list(kmeans.predict(ch_int.reshape((-1,1))))])
+
 
     def get_lst_features(self):
         """
