@@ -579,7 +579,6 @@ class Analyzor(object):
         self.data['norm'] = centerDAPI(self.data['raw'].copy(), splitBy, nbins, showPlot)
         self.updateAData()
 
-# TODO: check the reassignment below
     def findSingleCells(self, byExperiment = True, nbins = 100, spread = 0.4, channel = None):
         """
         Annotate single cells ......
