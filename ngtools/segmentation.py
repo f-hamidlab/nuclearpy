@@ -2009,22 +2009,13 @@ class NuclearGame_Segmentation(object):
             if ch == self.data["dna_marker"]:
                 continue
             img_concat = cv2.vconcat([self.data["files"][file]['working_array'][self.data["channels_info"][ch]] for file in files])
-# ravel
-# sample for 1 image 
-# cluster 
-# predict
-            kmeans = KMeans(n_clusters = n_groups, random_state = 0).fit(img_concat.reshape((-1, 1)))
-            thresholds = kmeans.cluster_centers_.squeeze()
+            img_flatten = img_concat.flatten()
+            img_sampled = np.random.choice(img_flatten, replace=False, size = self.data["files"][files[0]]['masks'].size)
+            kmeans = KMeans(n_clusters = n_groups, random_state = 0).fit(img_sampled.reshape((-1, 1)))
             for file in self.data["files"]:
-                image = self.data["files"][file]['working_array'][self.data["channels_info"][ch]]
-                mask = self.data["files"][file]["masks"]
-                regions = np.digitize(image, bins = sorted(thresholds))
-                self.data["files"][file]["nuclear_features"][f"{ch}_group"] = []
-                for cell in self.data["files"][file]["nuclear_features"]["cellID"]:
-                    if cell == 0:
-                        continue
-                    group = stats.mode(regions[mask == cell])[0][0]
-                    self.data["files"][file]["nuclear_features"][f"{ch}_group"].append(group)
+                ch_int = np.array(self.data["files"][file]["nuclear_features"][f"avg_intensity_{ch}"])
+                self.data["files"][file]["nuclear_features"][f"{ch}_group"] = kmeans.predict(ch_int.reshape((-1,1)))
+
 
     def get_lst_features(self):
         """
