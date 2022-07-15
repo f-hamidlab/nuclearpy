@@ -350,6 +350,7 @@ def selection2df(table):
     return df_out
 
 
+# TODO: add median feature
 def centerDAPI(data, splitBy="experiment", nbins=100, showPlot=True):
     modes_ = {}
     for exp in data[splitBy].unique():
@@ -578,6 +579,7 @@ class Analyzor(object):
         self.data['norm'] = centerDAPI(self.data['raw'].copy(), splitBy, nbins, showPlot)
         self.updateAData()
 
+# TODO: check the reassignment below
     def findSingleCells(self, byExperiment = True, nbins = 100, spread = 0.4, channel = None):
         """
         Annotate single cells ......
@@ -605,6 +607,7 @@ class Analyzor(object):
         self.data['norm']['isSingleCell'] = ss_array
         self.updateAData()
 
+# TODO: show cell by name
     def showCells(self, n=None, ch2show=None, order_by=None, ascending = True, fig_height=15, fig_width=20, show_nucleus=True,
                  RGB_contrasts=[3,3,4], uniqID=False, filter = None):
         """
