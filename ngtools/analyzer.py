@@ -15,7 +15,7 @@ import anndata
 import pandas as pd
 import copy
 import os, json
-from os.path import isfile, join, isdir
+from os.path import isfile, join, isdir, dirname
 import statistics
 from tqdm import tqdm
 import seaborn as sns
@@ -215,9 +215,9 @@ def show_cell(data, order_by="areaNucleus", fig_height=15, fig_width=40, show_nu
 
     n = 0
     for index, row in tqdm(new_df.iterrows(), total=new_df.shape[0]):
-        masks = np.load(join(row["path2ong"].replace("output.csv", ""), row["imageID"], f"{row['imageID']}_masks.npy"))
+        masks = np.load(join(dirname(row["path2ong"]), row["imageID"], f"{row['imageID']}_masks.npy"))
         wk_array = np.load(
-            join(row["path2ong"].replace("output.csv", ""), row["imageID"], f"{row['imageID']}_wkarray.npy"))
+            join(dirname(row["path2ong"]), row["imageID"], f"{row['imageID']}_wkarray.npy"))
         nucleus = wk_array[0].copy()
         nucleus[masks != row['cellID']] = 0
         cX_low, cX_high, cY_low, cY_high = zoomIN(nucleus, row["x_pos"], row["y_pos"], zoom_box_side=300)
@@ -228,7 +228,7 @@ def show_cell(data, order_by="areaNucleus", fig_height=15, fig_width=40, show_nu
         color_blue = Image.fromarray(np.zeros((y, x, 3), dtype='uint8')).convert('L')
         img_chan = chinfo[row['experiment']]
         for col,ch in dct_colors.items():
-            channel = wk_array[img_chan[ch] + 1].copy()
+            channel = wk_array[img_chan[ch]].copy()
             channel = channel[cY_low:cY_high, cX_low:cX_high]
             channel = cv2.normalize(channel, None, 0, 255, cv2.NORM_MINMAX, cv2.CV_8U)
             RGB = np.array((*"RGB",))
