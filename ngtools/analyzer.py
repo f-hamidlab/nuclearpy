@@ -351,12 +351,12 @@ def selection2df(table):
 
 
 # TODO: add median feature
-def centerDAPI(data, splitBy="experiment", nbins=100, showPlot=True):
+def centerDAPI(data, splitBy="experiment", method = "mode", nbins=100, showPlot=True):
     modes_ = {}
     for exp in data[splitBy].unique():
         subset = data[data[splitBy] == exp]
         subset["bins"] = pd.cut(subset["total_intensity_dapi"], nbins, duplicates="drop", labels=False)
-        bins_mode = statistics.mode(subset["bins"])
+        bins_mode = statistics.mode(subset["bins"]) if method == "mode" else statistics.median(subset["bins"])
         mode_ = subset["total_intensity_dapi"][subset["bins"] == bins_mode].median()
         modes_[exp] = mode_
 
@@ -558,7 +558,7 @@ class Analyzor(object):
         """
         return self.data['raw'].shape[0]
 
-    def ctrDAPI(self, splitBy = "experiment", nbins = 100, showPlot = True):
+    def ctrDAPI(self, splitBy = "experiment", method = "mode", nbins = 100, showPlot = True):
         """
         Centralize DAPI intensity ....
 
@@ -576,7 +576,7 @@ class Analyzor(object):
         None.
 
         """
-        self.data['norm'] = centerDAPI(self.data['raw'].copy(), splitBy, nbins, showPlot)
+        self.data['norm'] = centerDAPI(self.data['raw'].copy(), splitBy, method, nbins, showPlot)
         self.updateAData()
 
     def findSingleCells(self, byExperiment = True, nbins = 100, spread = 0.4, channel = None):
