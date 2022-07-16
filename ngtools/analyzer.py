@@ -350,7 +350,6 @@ def selection2df(table):
     return df_out
 
 
-# TODO: add median feature
 def centerDAPI(data, splitBy="experiment", method = "mode", nbins=100, showPlot=True):
     modes_ = {}
     for exp in data[splitBy].unique():
