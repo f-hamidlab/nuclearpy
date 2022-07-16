@@ -633,7 +633,6 @@ class Analyzor(object):
         self.data['norm']['isSingleCell'] = ss_array
         self.updateAData()
 
-# TODO: show cell by name
     def showCells(self, n=None, cells = None, ch2show=None, order_by=None, ascending = True, fig_height=15, fig_width=20, show_nucleus=True,
                  RGB_contrasts=[3,3,4], uniqID=False, filter = None):
         """
