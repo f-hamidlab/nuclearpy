@@ -391,6 +391,7 @@ def import_ng_data(path, pattern):
         data_array.append(df)
     data = pd.concat(data_array, axis=0, ignore_index=True)
     data = remove_name_spaces(data)
+    data = setcellnames(data)
 
 
 
@@ -419,6 +420,24 @@ def import_channels_data(path=None, files=None):
 
     return data_dict
 
+def setcellnames(df):
+    df = df.copy()
+
+    newnames = ['-'.join(z) for z in zip(df["imageID"], df["cellID"].astype(str))]
+    df.index = newnames
+    if len(set(newnames)) != len(newnames):
+        # get all duplicated names
+        v = df.groupby(df.index) \
+            .cumcount() \
+            .astype(str) \
+            .str.replace('', '-', n = 1) \
+            .str.replace('-0', '') \
+            .values
+        df.index = (df.index.values.astype(str) + v)
+    return df
+
+
+
 
 class Analyzor(object):
 
@@ -445,6 +464,7 @@ class Analyzor(object):
         if collated_csv is not None:
             dat=pd.read_csv(collated_csv)
             dat=remove_name_spaces(dat)
+            dat = setcellnames(dat)
             self.data = {"raw": dat, "norm": dat}
 
             files = set(dat['path2ong'].to_list())
