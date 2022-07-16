@@ -393,10 +393,6 @@ def import_ng_data(path, pattern):
     data = remove_name_spaces(data)
     data = setcellnames(data)
 
-
-
-    ## TODO: Set unique cell names
-
     return data
 
 def remove_name_spaces(df):
