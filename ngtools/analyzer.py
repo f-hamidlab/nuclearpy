@@ -52,7 +52,7 @@ def intensityNormalisation(df, method="mode", nbins=10, verbose=True, hue="exper
         subset = df_[df_[hue] == exp]
         dct_norm[exp] = {}
         for col in subset.columns:
-            if "avg_intensity" in col and not any(l in col.lower() for l in ["dapi", "gfap", "olig2"]):
+            if "avg_intensity" in col and not any(l in col.lower() for l in ["dapi"]):
                 if method == "mode":
                     relevant_subset = subset[[col]].copy()
                     relevant_subset["bins"] = pd.cut(relevant_subset[col], nbins, duplicates="drop",
