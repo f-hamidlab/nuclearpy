@@ -499,7 +499,7 @@ class Analyzor(object):
     def __getitem__(self, key, data_type="norm"):
         return self.data[data_type][key].to_list()
 
-
+# TODO: allow showing of data by cells
     def showData(self, vars = None, data_type = 'norm'):
         """
         Displays analyzer data.
@@ -762,7 +762,7 @@ class Analyzor(object):
         plt.tight_layout()
         plt.show()
 
-    def plotVarDist(self, vars = "all", data_type="norm"):
+    def plotVarDist(self, vars = "all", data_type="norm", log = False):
         """
          Plot distribution of features
 
@@ -787,8 +787,12 @@ class Analyzor(object):
 
         if vars == "all":
             vars = list(self.adata.var.feature)
+            if log:
+                dat[vars] = np.log(dat[vars])
             dat.boxplot(figsize = (8,6), rot=90, column=vars)
         else:
+            if log:
+                dat[vars] = np.log(dat[vars])
             dat.boxplot(rot=90, column=vars, figsize = (8,6))
 
     def filterCells(self, filter = "", data_type = 'norm', cells = None, inplace = True):
