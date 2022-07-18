@@ -1057,8 +1057,8 @@ class Analyzor(object):
             self.data['raw']['diffmap_2'] = self.adata.obsm['X_diffmap'][..., 1]
             self.data['norm']['diffmap_1'] = self.adata.obsm['X_diffmap'][..., 0]
             self.data['norm']['diffmap_2'] = self.adata.obsm['X_diffmap'][..., 1]
-
-    def plotDim(self, hue = None, method = "umap"):
+# TODO: add color_map option
+    def plotDim(self, hue = None, method = "umap", vmin = None, vmax = None):
         """
          Plots coordinates of cells on reduced dimension
 
@@ -1076,7 +1076,7 @@ class Analyzor(object):
 
         if method == "umap":
             sc.pl.umap(self.adata, color=hue, frameon=False, ax=ax, legend_loc="on data",
-                       size=30, dimensions = [0,1]
+                       size=30, dimensions = [0,1], vmin = vmin, vmax =vmax
                        )
         elif method == "diffmap":
             sc.pl.diffmap(self.adata, color=hue, frameon=False, ax=ax, legend_loc="on data",
