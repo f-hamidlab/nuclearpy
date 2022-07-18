@@ -1188,7 +1188,7 @@ class SelectFromCollection:
             raise ValueError('Collection must have a facecolor')
         elif len(self.fc) == 1:
             self.fc = np.tile(self.fc, (self.Npts, 1))
-        if facecolors is not None: self.fc = facecolors
+        # if facecolors is not None: self.fc = facecolors
 
         line = {'color': 'grey',
                 'linewidth': 2, 'alpha': 0.8}
@@ -1198,7 +1198,7 @@ class SelectFromCollection:
     def update(self):
         self.fc[:, -1] = self.alpha_other
         self.fc[self.ind, -1] = 1
-        self.collection.set_facecolors(self.fc)
+        self.collection.set(alpha = self.fc[:,-1])
         self.canvas.draw_idle()
 
 
