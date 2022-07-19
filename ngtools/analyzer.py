@@ -490,7 +490,7 @@ class Analyzor(object):
             self.data = {"raw": dat, "norm": dat}
 
             files = set(dat['path2ong'].to_list())
-            files = [txt.replace("output.csv","channels_info.json") for txt in files]
+            files = [join(dirname(txt), "channels_info.json") for txt in files]
             self.meta = {"channels": import_channels_data(files = files)}
         else:
             dat = import_ng_data(exp_dir, pattern)
