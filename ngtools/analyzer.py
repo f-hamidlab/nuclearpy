@@ -15,7 +15,7 @@ import anndata
 import pandas as pd
 import copy
 import os, json
-from os.path import isfile, join, isdir, dirname
+from os.path import exists, join, dirname
 import statistics
 from tqdm import tqdm
 import seaborn as sns
