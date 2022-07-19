@@ -534,7 +534,11 @@ class Analyzor(object):
         """
         dat = self.data[data_type]
         if vars != None:
-            return dat[vars]
+            if vars not in list(dat):
+                missingvars = list(set(vars) - set(list(dat)))
+                raise ValueError(f"Variable(s) `{missingvars}` not found")
+            else:
+                return dat[vars]
         else:
             return dat
 
@@ -564,6 +568,9 @@ class Analyzor(object):
 
         """
         dat = self.data['raw']
+        if vars not in list(dat):
+            missingvars = list(set(vars) - set(list(dat)))
+            raise ValueError(f"Variable(s) `{missingvars}` not found")
         return dat[vars].value_counts()
 
     def shape(self):
