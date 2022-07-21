@@ -4,6 +4,7 @@ dist
 .idea
 *.egg-info/
 data/test*
+!docs/master*
 
 .DS_Store
 docs/.ipynb_checkpoints/
