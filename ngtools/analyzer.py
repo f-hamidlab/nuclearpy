@@ -389,7 +389,6 @@ def centerDAPI(data, splitBy="experiment", method = "mode", nbins=100, showPlot=
         plt.tight_layout()
         plt.show()
 
-    return data
 
 def import_ng_data(path, pattern):
     files = [os.path.join(dp, f) for dp, dn, filenames in os.walk(path) for f in filenames if fnmatchcase(f, pattern)]
@@ -487,14 +486,14 @@ class Analyzor(object):
             dat=pd.read_csv(collated_csv)
             dat=remove_name_spaces(dat)
             dat = setcellnames(dat)
-            self.data = {"raw": dat, "norm": dat}
+            self.data = {"raw": dat, "norm": dat.copy()}
 
             files = set(dat['path2ong'].to_list())
             files = [join(dirname(txt), "channels_info.json") for txt in files]
             self.meta = {"channels": import_channels_data(files = files)}
         else:
             dat = import_ng_data(exp_dir, pattern)
-            self.data = {"raw": dat, "norm": dat}
+            self.data = {"raw": dat, "norm": dat.copy()}
             self.meta = {"channels": import_channels_data(exp_dir)}
         self.adata = ""
         self.excfeat = []
@@ -606,7 +605,8 @@ class Analyzor(object):
         """
         return self.data['raw'].shape[0]
 
-    def ctrDAPI(self, splitBy = "experiment", method = "mode", nbins = 100, showPlot = True):
+    def normChannel(self, channel, intensity_type = "total",
+                splitBy = "experiment", method = "mode", nbins = 100, showPlot = True):
         """
         Centralize DAPI intensity ....
 
@@ -624,7 +624,8 @@ class Analyzor(object):
         None.
 
         """
-        self.data['norm'] = centerDAPI(self.data['raw'].copy(), splitBy, method, nbins, showPlot)
+        column = f"{intensity_type}_intensity_{channel}"
+        self.data['norm'][column] = norm_channels(self.data['raw'], channel, intensity_type, splitBy, method, nbins, showPlot)
         self.updateAData()
 
     def findSingleCells(self, byExperiment = True, nbins = 100, spread = 0.4, channel = None):
