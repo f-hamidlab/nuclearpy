@@ -362,33 +362,48 @@ def selection2df(table):
     return df_out
 
 
-def centerDAPI(data, splitBy="experiment", method = "mode", nbins=100, showPlot=True):
-    modes_ = {}
+def norm_channels(data, channel, intensity_type = "total", splitBy="experiment", method = "mode", nbins=100, showPlot=True):
+    dct_norm = {}
+    data = data.copy()
+
+    col = f"{intensity_type}_intensity_{channel}"
     for exp in data[splitBy].unique():
         subset = data[data[splitBy] == exp]
-        subset["bins"] = pd.cut(subset["total_intensity_dapi"], nbins, duplicates="drop", labels=False)
-        bins_mode = statistics.mode(subset["bins"]) if method == "mode" else statistics.median(subset["bins"])
-        mode_ = subset["total_intensity_dapi"][subset["bins"] == bins_mode].median()
-        modes_[exp] = mode_
+        if method == "mode":
+            relevant_subset = subset[[col]].copy()
+            relevant_subset["bins"] = pd.cut(relevant_subset[col], nbins, duplicates="drop",
+                                             labels=False)
+            bins_mode = statistics.mode(relevant_subset["bins"])
+            mode_ = relevant_subset[col][relevant_subset["bins"] == bins_mode].median()
+            subset[col] = subset[col] / mode_
+            dct_norm[exp] = mode_
+        elif method == "mean":
+            mean_ = subset[col].mean()
+            subset[col] = subset[col] / mean_
+            dct_norm[exp] = mean_
+        elif method == "median":
+            median_ = subset[col].median()
+            subset[col] = subset[col] / median_
+            dct_norm[exp] = median_
 
-    dapi_reference = data["total_intensity_dapi"].median()
+    dapi_reference = data[col].median()
 
     dapi_norm = {}
-    for k, v in modes_.items():
+    for k, v in dct_norm.items():
         dapi_norm[k] = dapi_reference / v
 
-    data["avg_intensity_dapi"] = [row["avg_intensity_dapi"] * dapi_norm[row["experiment"]] for index, row in
-                                  data.iterrows()]
+    data[col] = [row[col] * dapi_norm[row["experiment"]] for index, row in data.iterrows()]
 
     if showPlot:
         fig, ax = plt.subplots(figsize=(3 * len(data[splitBy].unique()), 6))
-        sns.violinplot(x=splitBy, y="total_intensity_dapi", data=data, ax=ax)
+        sns.violinplot(x=splitBy, y=col, data=data, ax=ax)
         for n, exp in enumerate(data[splitBy].unique()):
             X = n
-            ax.plot([X - 0.4, X + 0.4], [modes_[exp], modes_[exp]], color='r')
+            ax.plot([X - 0.4, X + 0.4], [dct_norm[exp], dct_norm[exp]], color='r')
         plt.tight_layout()
         plt.show()
 
+    return data[col].to_list()
 
 def import_ng_data(path, pattern):
     files = [os.path.join(dp, f) for dp, dn, filenames in os.walk(path) for f in filenames if fnmatchcase(f, pattern)]
