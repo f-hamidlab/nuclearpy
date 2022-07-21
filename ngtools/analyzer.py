@@ -396,7 +396,7 @@ def import_ng_data(path, pattern):
 
     data_array = []
     for file in files:
-        name = file.split("/")[-3]
+        name = os.path.normpath(file).split(os.sep)[-3]
         df = pd.read_csv(file, index_col=None, header=0)
         df["experiment"] = name
         df["path2ong"] = file
@@ -422,7 +422,7 @@ def import_channels_data(path=None, files=None):
 
     data_dict = {}
     for file in files:
-        name = file.split("/")[-3]
+        name = os.path.normpath(file).split(os.sep)[-3]
         with open(file) as json_file:
             data_dict[name] = json.load(json_file)
 
