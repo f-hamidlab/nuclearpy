@@ -1130,14 +1130,7 @@ class NuclearGame_Segmentation(object):
 
         """
 
-        self.path_read = indir
-
-        ## F: append / to path
-        if indir.endswith("/"):
-            self.path_read = indir
-            indir = indir.strip("/")
-        else:
-            self.path_read = indir + "/"
+        self.path_read = os.path.normpath(indir)
 
 
         # TODO: add compatibility to more formats.
@@ -1161,11 +1154,11 @@ class NuclearGame_Segmentation(object):
 
         # Creat out folder in the same path
         outdir = indir if outdir is None else join(outdir, os.path.basename(indir))
-        self.path_save = join(outdir, 'out_ng/')
+        self.path_save = join(outdir, 'out_ng')
         if os.path.isdir(self.path_save):
             n = 1
             while os.path.isdir(self.path_save):
-                self.path_save = join(outdir, f'out_ng ({n})/')
+                self.path_save = join(outdir, f'out_ng ({n})')
                 n += 1
 
 
@@ -1213,7 +1206,7 @@ class NuclearGame_Segmentation(object):
         for file in files:
             _file = file.replace(self.image_format, "")
             self.data["files"][_file] = {}
-            self.data["files"][_file]["path"] = self.path_read + file  ##F: corrected path
+            self.data["files"][_file]["path"] = join(self.path_read, file)
             print(f"\t{_file}", f"(format: {self.image_format.upper()})")
 
 
@@ -2053,9 +2046,9 @@ class NuclearGame_Segmentation(object):
             dct_df[ft] = [l for file in self.data["files"] for l in self.data["files"][file]["nuclear_features"][ft]]
 
         df_out = pd.DataFrame.from_dict(data = dct_df)
-        df_out.to_csv(self.path_save + filename, index = False)
+        df_out.to_csv(join(self.path_save, filename), index = False)
 
-        print(f"CSV file saved as: {self.path_save + filename}.")
+        print(f"CSV file saved as: {join(self.path_save, filename)}.")
 
 
     def saveArrays(self):
@@ -2071,9 +2064,9 @@ class NuclearGame_Segmentation(object):
             os.makedirs(self.path_save)
 
         for file in tqdm(self.data["files"]):
-            os.makedirs(self.path_save + "/" + file)
-            np.save(self.path_save + file + "/" + file + "_wkarray.npy", self.data["files"][file]["working_array"])
-            np.save(self.path_save + file + "/" + file + "_masks.npy", self.data["files"][file]["masks"])
+            os.makedirs(join(self.path_save , file))
+            np.save(join(self.path_save, file, file + "_wkarray.npy"), self.data["files"][file]["working_array"])
+            np.save(join(self.path_save, file, file + "_masks.npy"), self.data["files"][file]["masks"])
 
 
     def saveChannelInfo(self):
@@ -2088,7 +2081,7 @@ class NuclearGame_Segmentation(object):
         if not os.path.exists(self.path_save):
             os.makedirs(self.path_save)
         try:
-            with open(self.path_save + "channels_info.json", "w") as outfile:
+            with open(join(self.path_save, "channels_info.json"), "w") as outfile:
                 json.dump(self.data["channels_info"], outfile)
             print("Channel Info saved successfully!")
         except:
