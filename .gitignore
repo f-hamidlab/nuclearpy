@@ -4,6 +4,7 @@ dist
 .idea
 *.egg-info/
 data/test*
+docs/
 !docs/*master.ipynb
 
 .DS_Store
