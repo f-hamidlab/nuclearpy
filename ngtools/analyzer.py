@@ -446,7 +446,7 @@ def import_channels_data(path=None, files=None):
 def setcellnames(df):
     df = df.copy()
 
-    newnames = ['-'.join(z) for z in zip(df["imageID"], df["cellID"].astype(str))]
+    newnames = ['-'.join(z) for z in zip(df["imageID"].astype(str), df["cellID"].astype(str))]
     df.index = newnames
     if len(set(newnames)) != len(newnames):
         # get all duplicated names
