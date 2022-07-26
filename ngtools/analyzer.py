@@ -392,7 +392,6 @@ def norm_channels(data, channel, intensity_type = "total", splitBy="experiment",
     for k, v in dct_norm.items():
         dapi_norm[k] = dapi_reference / v
 
-    data[col] = [row[col] * dapi_norm[row["experiment"]] for index, row in data.iterrows()]
 
     if showPlot:
         fig, ax = plt.subplots(figsize=(3 * len(data[splitBy].unique()), 6))
@@ -402,6 +401,8 @@ def norm_channels(data, channel, intensity_type = "total", splitBy="experiment",
             ax.plot([X - 0.4, X + 0.4], [dct_norm[exp], dct_norm[exp]], color='r')
         plt.tight_layout()
         plt.show()
+
+    data[col] = [row[col] * dapi_norm[row["experiment"]] for index, row in data.iterrows()]
 
     return data[col].to_list()
 
