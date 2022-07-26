@@ -494,7 +494,7 @@ class Analyzor(object):
                 raise ValueError(f"`{collated_csv}` file does not exists")
             # soft import
             colnames = pd.read_csv(collated_csv, index_col=0, nrows=0).columns.tolist()
-            if ['path2ong', 'experiment'] not in colnames:
+            if any(x not in colnames for x in ['path2ong', 'experiment']):
                 raise ValueError(f"`{collated_csv}` was not collated properly. Please provide use `exp_dir` arg instead.")
 
         # import collated_csv
