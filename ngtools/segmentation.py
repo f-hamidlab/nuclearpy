@@ -369,8 +369,9 @@ def get_metadata_czi(filename, dim2none=False):
         metadata['NumWells'] = len(metadata['WellCounter'].keys())
 
     except:
-        print('Key not found: S')
-        print('No Scence or Well Information detected:')
+        pass
+        #print('Key not found: S')
+        #print('No Scence or Well Information detected:')
 
 
     # for getting binning
