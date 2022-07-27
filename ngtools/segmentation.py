@@ -1076,7 +1076,7 @@ def removenuclei(masks):
 
 class Segmentador(object):
 
-    def __init__(self, indir, outdir=None, analyse_all=False):
+    def __init__(self, indir, outdir=None, analyse_all=False, resolution=None):
         """
         Initialise Segmentador object
 
