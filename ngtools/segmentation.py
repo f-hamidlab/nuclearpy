@@ -1361,7 +1361,7 @@ class Segmentador(object):
                 if xscale == None:
                     while xflag:
                         try:
-                            xscale = float(input("Enter upp for X axis (e.g. 0.227): "))
+                            xscale = float(input("Enter resolution for X axis (micrometer/pixel): "))
                             self.data["files"][file]['metadata']['XScale'] = xscale
                             xflag = False
                             break
@@ -1373,7 +1373,7 @@ class Segmentador(object):
                 if yscale == None:
                     while yflag:
                         try:
-                            yscale = float(input("Enter upp for Y axis (e.g. 0.227): "))
+                            yscale = float(input("Enter resolution for Y axis (micrometer/pixel): "))
                             self.data["files"][file]['metadata']['YScale'] = yscale
                             yflag = False
                             break
