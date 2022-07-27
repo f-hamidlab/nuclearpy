@@ -1078,7 +1078,8 @@ class Segmentador(object):
 
     def __init__(self, indir, outdir=None, analyse_all=False):
         """
-        Initialise object
+        Initialise Segmentador object
+
         Parameters
         ----------
         indir : string
