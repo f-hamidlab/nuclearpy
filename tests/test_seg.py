@@ -63,8 +63,8 @@ def test_nuclear_seg():
     file = "Snap-120"
     ngs.nuclear_segmentation()
 
-    custom_assert(len(ngs.data["files"][file]), 8, "Get new number of keys after segmentation")
-    custom_assert(list(ngs.data["files"][file])[4:], ['working_array', 'masks', 'flows', 'th_array'],
+    custom_assert(len(ngs.data["files"][file]), 7, "Get new number of keys after segmentation")
+    custom_assert(list(ngs.data["files"][file])[3:], ['working_array', 'masks', 'flows', 'th_array'],
                   "Get name of new keys")
     custom_assert(ngs.data["files"][file]['working_array'].shape, (4, 1462, 1936), "Get dimension of wk_array")
     custom_assert(ngs.data["files"][file]['masks'].shape, (1462, 1936), "Get dimension of masks")
