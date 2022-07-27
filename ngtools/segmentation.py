@@ -1154,7 +1154,7 @@ class Segmentador(object):
                 array, metadata, moremetadata = get_array_czi(filename=self.data["files"][_file]["path"])
                 self.data["files"][_file]["array"] = array
                 self.data["files"][_file]["metadata"] = metadata
-                self.data["files"][_file]["add_metadata"] = moremetadata
+                # self.data["files"][_file]["add_metadata"] = moremetadata
             # TODO: support TIFF files
             elif self.image_format == ".tiff" or self.image_format == ".tif":
                 pass
