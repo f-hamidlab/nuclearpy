@@ -1280,8 +1280,16 @@ class Segmentador(object):
 
         Parameters
         ----------
-        diameter : Integer, optional
+        method : str
+            Method to segment nuclei. Currently supports "cellpose" (default)
+        diameter : Integer
             Approximate nuclear diameter. The default is None.
+        gamma_corr: float or None
+            Gamma value to correct intensity by. By default, gamma_corr is not performed.
+        dc_scaleCorr : float
+            Scale correction for deepcell segmentation
+        GPU : bool
+            Whether to use GPU for segmentation
 
         Returns
         -------
