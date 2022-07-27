@@ -38,9 +38,6 @@ def test_init():
 
     custom_assert(len(ngs.data["files"][file]), 3, "Get new number of keys")
 
-def test_read_files():
-    file = "Snap-120"
-    ngs.read_files()
 
 # def test_read_files():
 #     file = "Snap-120"
