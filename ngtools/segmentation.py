@@ -164,7 +164,7 @@ def get_metadata_czi(filename, dim2none=False):
     # if czi.axes[-1] == 3:
     #     metadata['isRGB'] = True
     #
-    # metadata['Information'] = metadatadict_czi['ImageDocument']['Metadata']['Information']
+    metadata['Information'] = metadatadict_czi['ImageDocument']['Metadata']['Information']
     # try:
     #     metadata['PixelType'] = metadata['Information']['Image']['PixelType']
     # except KeyError as e:
