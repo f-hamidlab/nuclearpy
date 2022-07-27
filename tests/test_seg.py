@@ -47,6 +47,10 @@ def test_init():
 #
 #     custom_assert(len(ngs.data["files"][file]), 4, "Get new number of keys")
 
+def test_init_other_files():
+    tiff = ngt.Segmentador("data/sample_images/tiff", outdir="data/sample_output", analyse_all=True)
+    lsm = ngt.Segmentador("data/sample_images/lsm", outdir="data/sample_output", analyse_all=True)
+
 
 def test_set_channels():
     with pytest.raises(ValueError):
