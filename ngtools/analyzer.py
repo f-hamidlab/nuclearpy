@@ -687,7 +687,9 @@ class Analyzor(object):
 
         """
         if channel == None:
-            channel = "dapi"
+            channel = list(self.meta['channels'][list(self.meta['channels'])[0]])[0]
+
+        print(f"Using {channel} channel for qualifying single cells")
         ss_array = find_SingleCells(self.data['raw'], byExperiment, nbins, spread, channel)
         self.data['raw']['isSingleCell'] = ss_array
         self.data['norm']['isSingleCell'] = ss_array
