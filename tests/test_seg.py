@@ -17,6 +17,7 @@ def custom_assert(actual, expected, test_name=""):
 #     Segmentador tests					    #
 #############################################
 ngs = []
+file = "Snap-120"
 
 
 def test_init():
