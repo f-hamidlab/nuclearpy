@@ -141,47 +141,47 @@ def get_metadata_czi(filename, dim2none=False):
         print("WARNING! Metadata could not be read!")
         return metadata
 
-    # get directory and filename etc.
-    try:
-        metadata['Directory'] = os.path.dirname(filename)
-    except:
-        metadata['Directory'] = 'Unknown'
-    try:
-        metadata['Filename'] = os.path.basename(filename)
-    except:
-        metadata['Filename'] = 'Unknown'
-    metadata['Extension'] = 'czi'
-    metadata['ImageType'] = 'czi'
+    # # get directory and filename etc.
+    # try:
+    #     metadata['Directory'] = os.path.dirname(filename)
+    # except:
+    #     metadata['Directory'] = 'Unknown'
+    # try:
+    #     metadata['Filename'] = os.path.basename(filename)
+    # except:
+    #     metadata['Filename'] = 'Unknown'
+    # metadata['Extension'] = 'czi'
+    # metadata['ImageType'] = 'czi'
 
     # add axes and shape information
     metadata['Axes'] = czi.axes
-    metadata['Shape'] = czi.shape
-
-    # determine pixel type for CZI array
-    metadata['NumPy.dtype'] = str(czi.dtype)
-
-    # check if the CZI image is an RGB image depending on the last dimension entry of axes
-    if czi.axes[-1] == 3:
-        metadata['isRGB'] = True
-
-    metadata['Information'] = metadatadict_czi['ImageDocument']['Metadata']['Information']
-    try:
-        metadata['PixelType'] = metadata['Information']['Image']['PixelType']
-    except KeyError as e:
-        print('Key not found:', e)
-        metadata['PixelType'] = None
-
-    metadata['SizeX'] = int(metadata['Information']['Image']['SizeX'])
-    metadata['SizeY'] = int(metadata['Information']['Image']['SizeY'])
-
-    try:
-        metadata['SizeZ'] = int(metadata['Information']['Image']['SizeZ'])
-    except:
-        if dim2none:
-            metadata['SizeZ'] = None
-        if not dim2none:
-            metadata['SizeZ'] = 1
-
+    # metadata['Shape'] = czi.shape
+    #
+    # # determine pixel type for CZI array
+    # metadata['NumPy.dtype'] = str(czi.dtype)
+    #
+    # # check if the CZI image is an RGB image depending on the last dimension entry of axes
+    # if czi.axes[-1] == 3:
+    #     metadata['isRGB'] = True
+    #
+    # metadata['Information'] = metadatadict_czi['ImageDocument']['Metadata']['Information']
+    # try:
+    #     metadata['PixelType'] = metadata['Information']['Image']['PixelType']
+    # except KeyError as e:
+    #     print('Key not found:', e)
+    #     metadata['PixelType'] = None
+    #
+    # metadata['SizeX'] = int(metadata['Information']['Image']['SizeX'])
+    # metadata['SizeY'] = int(metadata['Information']['Image']['SizeY'])
+    #
+    # try:
+    #     metadata['SizeZ'] = int(metadata['Information']['Image']['SizeZ'])
+    # except:
+    #     if dim2none:
+    #         metadata['SizeZ'] = None
+    #     if not dim2none:
+    #         metadata['SizeZ'] = 1
+    #
     try:
         metadata['SizeC'] = int(metadata['Information']['Image']['SizeC'])
     except:
@@ -203,39 +203,39 @@ def get_metadata_czi(filename, dim2none=False):
                 channels.append(str(ch))
 
     metadata['Channels'] = channels
-
-    try:
-        metadata['SizeT'] = int(metadata['Information']['Image']['SizeT'])
-    except:
-        if dim2none:
-            metadata['SizeT'] = None
-        if not dim2none:
-            metadata['SizeT'] = 1
-
-    try:
-        metadata['SizeM'] = int(metadata['Information']['Image']['SizeM'])
-    except:
-        if dim2none:
-            metadata['SizeM'] = None
-        if not dim2none:
-            metadata['SizeM'] = 1
-
-    try:
-        metadata['SizeB'] = int(metadata['Information']['Image']['SizeB'])
-    except:
-
-        if dim2none:
-            metadata['SizeB'] = None
-        if not dim2none:
-            metadata['SizeB'] = 1
-
-    try:
-        metadata['SizeS'] = int(metadata['Information']['Image']['SizeS'])
-    except:
-        if dim2none:
-            metadata['SizeS'] = None
-        if not dim2none:
-            metadata['SizeS'] = 1
+    #
+    # try:
+    #     metadata['SizeT'] = int(metadata['Information']['Image']['SizeT'])
+    # except:
+    #     if dim2none:
+    #         metadata['SizeT'] = None
+    #     if not dim2none:
+    #         metadata['SizeT'] = 1
+    #
+    # try:
+    #     metadata['SizeM'] = int(metadata['Information']['Image']['SizeM'])
+    # except:
+    #     if dim2none:
+    #         metadata['SizeM'] = None
+    #     if not dim2none:
+    #         metadata['SizeM'] = 1
+    #
+    # try:
+    #     metadata['SizeB'] = int(metadata['Information']['Image']['SizeB'])
+    # except:
+    #
+    #     if dim2none:
+    #         metadata['SizeB'] = None
+    #     if not dim2none:
+    #         metadata['SizeB'] = 1
+    #
+    # try:
+    #     metadata['SizeS'] = int(metadata['Information']['Image']['SizeS'])
+    # except:
+    #     if dim2none:
+    #         metadata['SizeS'] = None
+    #     if not dim2none:
+    #         metadata['SizeS'] = 1
 
     try:
         metadata['Scaling'] = metadatadict_czi['ImageDocument']['Metadata']['Scaling']
@@ -264,133 +264,133 @@ def get_metadata_czi(filename, dim2none=False):
                 metadata['ZScale'] = metadata['XScale']
     except:
         metadata['Scaling'] = None
-
-    # try to get software version
-    try:
-        metadata['SW-Name'] = metadata['Information']['Application']['Name']
-        metadata['SW-Version'] = metadata['Information']['Application']['Version']
-    except KeyError as e:
-        print('Key not found:', e)
-        metadata['SW-Name'] = None
-        metadata['SW-Version'] = None
-
-    try:
-        metadata['AcqDate'] = metadata['Information']['Image']['AcquisitionDateAndTime']
-    except KeyError as e:
-        print('Key not found:', e)
-        metadata['AcqDate'] = None
-
-    try:
-        metadata['Instrument'] = metadata['Information']['Instrument']
-    except KeyError as e:
-        print('Key not found:', e)
-        metadata['Instrument'] = None
-
-    if metadata['Instrument'] is not None:
-
-        # get objective data
-        try:
-            metadata['ObjName'] = metadata['Instrument']['Objectives']['Objective']['@Name']
-        except:
-            metadata['ObjName'] = None
-
-        try:
-            metadata['ObjImmersion'] = metadata['Instrument']['Objectives']['Objective']['Immersion']
-        except:
-            metadata['ObjImmersion'] = None
-
-        try:
-            metadata['ObjNA'] = float(metadata['Instrument']['Objectives']['Objective']['LensNA'])
-        except:
-            metadata['ObjNA'] = None
-
-        try:
-            metadata['ObjID'] = metadata['Instrument']['Objectives']['Objective']['@Id']
-        except:
-            metadata['ObjID'] = None
-
-        try:
-            metadata['TubelensMag'] = float(metadata['Instrument']['TubeLenses']['TubeLens']['Magnification'])
-        except:
-            metadata['TubelensMag'] = None
-
-        try:
-            metadata['ObjNominalMag'] = float(metadata['Instrument']['Objectives']['Objective']['NominalMagnification'])
-        except KeyError as e:
-            print('Key not found:', e)
-            metadata['ObjNominalMag'] = None
-
-        try:
-            metadata['ObjMag'] = metadata['ObjNominalMag'] * metadata['TubelensMag']
-        except:
-            metadata['ObjMag'] = None
-
-        # get detector information
-        try:
-            metadata['DetectorID'] = metadata['Instrument']['Detectors']['Detector']['@Id']
-        except:
-            metadata['DetectorID'] = None
-
-        try:
-            metadata['DetectorModel'] = metadata['Instrument']['Detectors']['Detector']['@Name']
-        except:
-            metadata['DetectorModel'] = None
-
-        try:
-            metadata['DetectorName'] = metadata['Instrument']['Detectors']['Detector']['Manufacturer']['Model']
-        except:
-            metadata['DetectorName'] = None
-
-        # delete some key from dict
-        del metadata['Instrument']
-
-    # check for well information
-
-    metadata['Well_ArrayNames'] = []
-    metadata['Well_Indices'] = []
-    metadata['Well_PositionNames'] = []
-    metadata['Well_ColId'] = []
-    metadata['Well_RowId'] = []
-    metadata['WellCounter'] = None
-
-    try:
-        allscenes = metadata['Information']['Image']['Dimensions']['S']['Scenes']['Scene']
-        for s in range(metadata['SizeS']):
-            well = allscenes[s]
-            metadata['Well_ArrayNames'].append(well['ArrayName'])
-            metadata['Well_Indices'].append(well['@Index'])
-            metadata['Well_PositionNames'].append(well['@Name'])
-            metadata['Well_ColId'].append(well['Shape']['ColumnIndex'])
-            metadata['Well_RowId'].append(well['Shape']['RowIndex'])
-
-        # count the content of the list, e.g. how many time a certain well was detected
-        metadata['WellCounter'] = Counter(metadata['Well_ArrayNames'])
-        # count the number of different wells
-        metadata['NumWells'] = len(metadata['WellCounter'].keys())
-
-    except:
-        pass
-        #print('Key not found: S')
-        #print('No Scence or Well Information detected:')
-
+    #
+    # # try to get software version
+    # try:
+    #     metadata['SW-Name'] = metadata['Information']['Application']['Name']
+    #     metadata['SW-Version'] = metadata['Information']['Application']['Version']
+    # except KeyError as e:
+    #     print('Key not found:', e)
+    #     metadata['SW-Name'] = None
+    #     metadata['SW-Version'] = None
+    #
+    # try:
+    #     metadata['AcqDate'] = metadata['Information']['Image']['AcquisitionDateAndTime']
+    # except KeyError as e:
+    #     print('Key not found:', e)
+    #     metadata['AcqDate'] = None
+    #
+    # try:
+    #     metadata['Instrument'] = metadata['Information']['Instrument']
+    # except KeyError as e:
+    #     print('Key not found:', e)
+    #     metadata['Instrument'] = None
+    #
+    # if metadata['Instrument'] is not None:
+    #
+    #     # get objective data
+    #     try:
+    #         metadata['ObjName'] = metadata['Instrument']['Objectives']['Objective']['@Name']
+    #     except:
+    #         metadata['ObjName'] = None
+    #
+    #     try:
+    #         metadata['ObjImmersion'] = metadata['Instrument']['Objectives']['Objective']['Immersion']
+    #     except:
+    #         metadata['ObjImmersion'] = None
+    #
+    #     try:
+    #         metadata['ObjNA'] = float(metadata['Instrument']['Objectives']['Objective']['LensNA'])
+    #     except:
+    #         metadata['ObjNA'] = None
+    #
+    #     try:
+    #         metadata['ObjID'] = metadata['Instrument']['Objectives']['Objective']['@Id']
+    #     except:
+    #         metadata['ObjID'] = None
+    #
+    #     try:
+    #         metadata['TubelensMag'] = float(metadata['Instrument']['TubeLenses']['TubeLens']['Magnification'])
+    #     except:
+    #         metadata['TubelensMag'] = None
+    #
+    #     try:
+    #         metadata['ObjNominalMag'] = float(metadata['Instrument']['Objectives']['Objective']['NominalMagnification'])
+    #     except KeyError as e:
+    #         print('Key not found:', e)
+    #         metadata['ObjNominalMag'] = None
+    #
+    #     try:
+    #         metadata['ObjMag'] = metadata['ObjNominalMag'] * metadata['TubelensMag']
+    #     except:
+    #         metadata['ObjMag'] = None
+    #
+    #     # get detector information
+    #     try:
+    #         metadata['DetectorID'] = metadata['Instrument']['Detectors']['Detector']['@Id']
+    #     except:
+    #         metadata['DetectorID'] = None
+    #
+    #     try:
+    #         metadata['DetectorModel'] = metadata['Instrument']['Detectors']['Detector']['@Name']
+    #     except:
+    #         metadata['DetectorModel'] = None
+    #
+    #     try:
+    #         metadata['DetectorName'] = metadata['Instrument']['Detectors']['Detector']['Manufacturer']['Model']
+    #     except:
+    #         metadata['DetectorName'] = None
+    #
+    #     # delete some key from dict
+    #     del metadata['Instrument']
+    #
+    # # check for well information
+    #
+    # metadata['Well_ArrayNames'] = []
+    # metadata['Well_Indices'] = []
+    # metadata['Well_PositionNames'] = []
+    # metadata['Well_ColId'] = []
+    # metadata['Well_RowId'] = []
+    # metadata['WellCounter'] = None
+    #
+    # try:
+    #     allscenes = metadata['Information']['Image']['Dimensions']['S']['Scenes']['Scene']
+    #     for s in range(metadata['SizeS']):
+    #         well = allscenes[s]
+    #         metadata['Well_ArrayNames'].append(well['ArrayName'])
+    #         metadata['Well_Indices'].append(well['@Index'])
+    #         metadata['Well_PositionNames'].append(well['@Name'])
+    #         metadata['Well_ColId'].append(well['Shape']['ColumnIndex'])
+    #         metadata['Well_RowId'].append(well['Shape']['RowIndex'])
+    #
+    #     # count the content of the list, e.g. how many time a certain well was detected
+    #     metadata['WellCounter'] = Counter(metadata['Well_ArrayNames'])
+    #     # count the number of different wells
+    #     metadata['NumWells'] = len(metadata['WellCounter'].keys())
+    #
+    # except:
+    #     pass
+    #     #print('Key not found: S')
+    #     #print('No Scence or Well Information detected:')
+    #
 
     # for getting binning
-
-    try:
-        channels = metadatadict_czi['ImageDocument']['Metadata']['Information']['Image']['Dimensions']['Channels']['Channel']
-        for channel in range(len(channels)):
-            cuch = channels[channel]
-            metadata['Binning'].append(cuch['DetectorSettings']['Binning'])
-
-    except KeyError as e:
-        print('Key not found:', e)
-        print('No Binning Found')
-
-    del metadata['Information']
-    del metadata['Scaling']
-
-    # close CZI file
-    czi.close()
+    #
+    # try:
+    #     channels = metadatadict_czi['ImageDocument']['Metadata']['Information']['Image']['Dimensions']['Channels']['Channel']
+    #     for channel in range(len(channels)):
+    #         cuch = channels[channel]
+    #         metadata['Binning'].append(cuch['DetectorSettings']['Binning'])
+    #
+    # except KeyError as e:
+    #     print('Key not found:', e)
+    #     print('No Binning Found')
+    #
+    # del metadata['Information']
+    # del metadata['Scaling']
+    #
+    # # close CZI file
+    # czi.close()
 
     return metadata
 
