@@ -668,18 +668,18 @@ class Analyzor(object):
 
     def findSingleCells(self, byExperiment = True, nbins = 100, spread = 0.4, channel = None):
         """
-        Annotate single cells ......
+        Annotate single cells using DAPI/ICC feature
 
         Parameters
         ----------
         byExperiment : bool
-            Whether to annotate single cells per experiment.
+            Whether to annotate single cells by experiment
         nbins : int
-            Number of bins...
+            Number of bins to split the intensity distribution to calculate mode.
         spread : float
-            Whether to display....
-        channel : int
-            Number of bins...
+            Amount of spread from the mode to qualify cells as single-cell
+        channel : str
+            Name of nuclear marker to use. By default, will use first channel
 
         Returns
         -------
