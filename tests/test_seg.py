@@ -43,15 +43,18 @@ def test_read_files():
 
     custom_assert(len(ngs.data["files"][file]), 4, "Get new number of keys")
 
+def test_set_channels():
+    with pytest.raises(ValueError):
+        ngs.set_channels(channels=["dapi", "ch1", "ch2"], marker="dapi")
+        ngs.set_channels(channels=["dapi", "ch1", "ch2", "ch3"], marker="dapis")
 
-def test_identify_channels():
-    ngs.identify_channels(channels=["dapi", "ch1", "ch2", "ch3"], marker="dapi")
+    ngs.set_channels(channels=["dapi", "ch1", "ch2", "ch3"], marker="dapi")
 
     custom_assert(ngs.data["dna_marker"], "dapi", "Set DNA marker")
     custom_assert(len(ngs.data["channels_info"]), 4, "Set number of channels")
 
     # test interactivity
-    # ngs.identify_channels()
+    # ngs.set_channels()
     # custom_assert(ngs.data["dna_marker"], "dapi", "Set DNA marker")
     # custom_assert(len(ngs.data["channels_info"]), 4, "Set number of channels")
 

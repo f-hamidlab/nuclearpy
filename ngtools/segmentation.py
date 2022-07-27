@@ -1170,7 +1170,7 @@ class Segmentador(object):
                 n += 1
 
 
-    def identify_channels(self, channels = None, marker = None):
+    def set_channels(self, channels = None, marker = None):
         """
         Assign channel identity
 
