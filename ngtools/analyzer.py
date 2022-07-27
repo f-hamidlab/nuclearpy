@@ -470,13 +470,13 @@ class Analyzor(object):
         Parameters
         ----------
         exp_dir : string
-            Path to directory containing segmented output. Function will recursively import files named
-            "output.csv" [Default] and combine them.
-        csv : string
-            Optional- Path to collated CSV file. Useful when users have manually modified the collated output of
-            Segmentador and wish to use it instead.
-        filename : string
-            Name of CSV file exported from Segmentador. Only files with this name will be imported.
+            Path to directory containing segmented output. Will recursively import files containing
+            `pattern` in its name and combines them.
+        pattern : string
+            Pattern of file name to import.
+        collated_csv : string
+            Optional- Path to collated CSV file. Useful when users have created a collated output of
+            Segmentador and wish to use that instead.
 
         Returns
         -------
@@ -492,7 +492,7 @@ class Analyzor(object):
             # check file existence
             if not exists(collated_csv):
                 raise ValueError(f"`{collated_csv}` file does not exists")
-            # soft import
+            # soft import to check colnames
             colnames = pd.read_csv(collated_csv, index_col=0, nrows=0).columns.tolist()
             if any(x not in colnames for x in ['path2ong', 'experiment']):
                 raise ValueError(f"`{collated_csv}` was not collated properly. Please provide use `exp_dir` arg instead.")
@@ -506,7 +506,10 @@ class Analyzor(object):
 
             files = set(dat['path2ong'].to_list())
             files = [join(dirname(txt), "channels_info.json") for txt in files]
-            self.meta = {"channels": import_channels_data(files = files)}
+            self.meta = {}
+            if all(os.path.exists(x) for x in files):
+                self.meta = {"channels": import_channels_data(files=files)}
+        # import individual csv
         else:
             dat = import_ng_data(exp_dir, pattern)
             self.data = {"raw": dat, "norm": dat.copy()}
@@ -529,7 +532,7 @@ class Analyzor(object):
         return self.data[data_type][key].to_list()
 
 # TODO: allow showing of data by cells
-    def showData(self, vars = None, data_type = 'norm'):
+    def showData(self, vars=None, data_type='norm'):
         """
         Displays analyzer data.
         By default, this function prints out all features from the raw segmented data. To display normalized data,
@@ -537,10 +540,11 @@ class Analyzor(object):
 
         Parameters
         ----------
-        data_type : string
-            Type of data to show. Can be 'raw' (default) or 'norm'.
         vars : string or list of strings
             Name of features to display. Name should be found in dataframe.
+        data_type : string
+            Type of data to show. Can be 'raw' (default) or 'norm'.
+
 
         Returns
         -------
@@ -549,7 +553,7 @@ class Analyzor(object):
         """
         dat = self.data[data_type]
         if vars != None:
-            if vars not in list(dat):
+            if any(x not in list(dat) for x in vars):
                 missingvars = list(set(vars) - set(list(dat)))
                 raise ValueError(f"Variable(s) `{missingvars}` not found")
             else:
@@ -583,7 +587,7 @@ class Analyzor(object):
 
         """
         dat = self.data['raw']
-        if vars not in list(dat):
+        if any(x not in list(dat) for x in vars):
             missingvars = list(set(vars) - set(list(dat)))
             raise ValueError(f"Variable(s) `{missingvars}` not found")
         return dat[vars].value_counts()
@@ -624,25 +628,43 @@ class Analyzor(object):
     def normChannel(self, channel, intensity_type = "total",
                 splitBy = "experiment", method = "mode", nbins = 100, showPlot = True):
         """
-        Centralize DAPI intensity ....
+        Normalise DAPI/ICC channels
 
         Parameters
         ----------
-        splitBy : string
-            Name of feature to
+        channel : str
+            Name of channel to normalise. Value has to be found in experiment
+        intensity_type : str
+            Type of intensity to normalise. Can be total or avg
+        splitBy : str
+            Name of feature to group the cells by for normalisation (Default: experiment)
+        method : str
+            Method to normalise values. Can be "mode", "median" or "mean"
         nbins : int
-            Number of bins...
+            Number of bins to split the intensity distribution to calculate mode. Ignored if
+            `Method` is not "mode"
         showPlot : bool
-            Whether to display....
+            Whether to display a violin plot of the pre-normalised intensity distribution
 
         Returns
         -------
         None.
 
         """
+
+        # check if input channel is in experiment
         column = f"{intensity_type}_intensity_{channel}"
-        self.data['norm'][column] = norm_channels(self.data['raw'], channel, intensity_type, splitBy, method, nbins, showPlot)
-        self.updateAData()
+        if column in list(self.data['norm']):
+            self.data['norm'][column] = norm_channels(self.data['raw'], channel, intensity_type, splitBy, method, nbins,
+                                                      showPlot)
+            self.updateAData()
+        elif intensity_type not in ["total","avg"]:
+            raise ValueError(f"`intensity_type` arguments have to be 'total' or 'avg'")
+        else:
+            raise ValueError(f"Channel `{channel}` not in experiment")
+
+
+
 
     def findSingleCells(self, byExperiment = True, nbins = 100, spread = 0.4, channel = None):
         """
