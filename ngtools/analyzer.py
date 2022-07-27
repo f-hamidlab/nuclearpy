@@ -506,7 +506,10 @@ class Analyzor(object):
 
             files = set(dat['path2ong'].to_list())
             files = [join(dirname(txt), "channels_info.json") for txt in files]
-            self.meta = {"channels": import_channels_data(files = files)}
+            self.meta = {}
+            if all(os.path.exists(x) for x in files):
+                self.meta = {"channels": import_channels_data(files=files)}
+        # import individual csv
         else:
             dat = import_ng_data(exp_dir, pattern)
             self.data = {"raw": dat, "norm": dat.copy()}
