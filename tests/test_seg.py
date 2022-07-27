@@ -49,7 +49,6 @@ def test_init():
 
 def test_init_other_files():
     tiff = ngt.Segmentador("data/sample_images/tiff", outdir="data/sample_output", analyse_all=True)
-    lsm = ngt.Segmentador("data/sample_images/lsm", outdir="data/sample_output", analyse_all=True)
 
 
 def test_set_channels():
