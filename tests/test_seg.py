@@ -20,7 +20,7 @@ ngs = []
 
 def test_init():
     global ngs
-    ngs = ngt.NuclearGame_Segmentation("data/sample_images/experiment2", outdir="data/sample_output")
+    ngs = ngt.Segmentador("data/sample_images/experiment2", outdir="data/sample_output", analyse_all=True)
     custom_assert(ngs.path_save, 'data/sample_output/experiment2/out_ng', "Set output dir")
 
 

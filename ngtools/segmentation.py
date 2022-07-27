@@ -1073,7 +1073,7 @@ def removenuclei(masks):
 
 
 
-class NuclearGame_Segmentation(object):
+class Segmentador(object):
 
     def __init__(self, indir, outdir=None):
         """
