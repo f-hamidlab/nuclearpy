@@ -1083,8 +1083,10 @@ class Segmentador(object):
         ----------
         indir : string
             Path to experiment directory containing image file(s)
-        indir : string
+        outdir : string
             Path to output directory. If None, indir will be set as the output directory.
+        analyse_all : bool
+            Whether to analyse all images in directory. If false, function will request input
 
         Returns
         -------
