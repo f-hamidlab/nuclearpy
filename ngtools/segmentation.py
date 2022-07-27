@@ -1297,6 +1297,7 @@ class Segmentador(object):
 
         """
 
+        self.check_pxScale()
         if method.lower() == "cellpose":
             self.seg_method = "cellpose"
             for n, file in enumerate(self.data["files"]):
@@ -1316,7 +1317,6 @@ class Segmentador(object):
                 self.data["files"][file]["th_array"] = get_th_array(self.data["files"][file]["masks"], nucleus)
 
         elif method.lower() == "deepcell":
-            self.check_pxScale()
             self.seg_method = "deepcell"
             for file in tqdm(self.data["files"]):
                 self.data["files"][file]['working_array'] = wk_array(self.data["files"][file]['array'],
@@ -1426,7 +1426,7 @@ class Segmentador(object):
                 self.data["files"][file]['metadata']['YScale'] = yscale
 
 
-    def nuclear_features(self, xscale = None, yscale=None):
+    def nuclear_features(self):
         """
         Measure first pool of nuclear features.
 
@@ -1435,8 +1435,6 @@ class Segmentador(object):
         None.
 
         """
-
-        self.check_pxScale(xscale = xscale, yscale = yscale)
 
         for file in tqdm(self.data["files"]):
 
