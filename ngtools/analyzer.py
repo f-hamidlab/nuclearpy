@@ -532,7 +532,7 @@ class Analyzor(object):
         return self.data[data_type][key].to_list()
 
 # TODO: allow showing of data by cells
-    def showData(self, vars = None, data_type = 'norm'):
+    def showData(self, vars=None, data_type='norm'):
         """
         Displays analyzer data.
         By default, this function prints out all features from the raw segmented data. To display normalized data,
