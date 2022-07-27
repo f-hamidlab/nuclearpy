@@ -1,10 +1,10 @@
 import ngtools.segmentation as ngt
 from os import walk
-from os.path import splitext, join
+from os.path import splitext, join, basename
 import pandas as pd
 
 
-def runNGS(dir, channels, dnamarker="dapi",
+def batch_Segmentador(dir, channels = None, dnamarker="dapi",
            segmethod="cellpose", useGPU=True,
            xscale=0.454, yscale=0.454, outdir=None, channelsinname=False, collate=False):
     """
@@ -50,7 +50,7 @@ def runNGS(dir, channels, dnamarker="dapi",
             splitext(f)[1] in [".lsm",".czi", ".tiff",".tif"]]))
 
     for thisdir in dirs:
-        print(thisdir)
+        print(f"Analysing {thisdir}")
         try:
             ngs = ngt.Segmentador(thisdir, outdir=outdir, analyse_all=True, resolution=[xscale,yscale])
         except NotADirectoryError:
@@ -59,11 +59,13 @@ def runNGS(dir, channels, dnamarker="dapi",
             print(f"Directory {thisdir} do not contain supported file formats.")
             continue
         if channelsinname:
-            channels = thisdir.split("_")[1].split(",")
+            channels = basename(thisdir).split("_")[1].split(",")
+            print(channels)
         ngs.set_channels(channels=channels, marker=dnamarker)
-        ngs.nuclear_segmentation(method=segmethod, diameter=30, gamma_corr=True, gamma=0.25, dc_scaleCorr=1.9,
-                                 GPU=useGPU)
-        ngs.nuclear_features(xscale, yscale)
+        print(f"Segmenting images")
+        ngs.nuclear_segmentation(method=segmethod, diameter=30, gamma_corr=0.25, dc_scaleCorr=1.9, GPU=useGPU)
+        print(f"Calculating nuclear features")
+        ngs.nuclear_features()
         ngs.add_nuclear_features()
         ngs.find_dna_peaks(box_size=10, zoom_box_size=200)
         ngs.find_dna_dots(zoom_box_size=200)
