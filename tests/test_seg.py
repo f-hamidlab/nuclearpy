@@ -4,6 +4,7 @@
 
 import ngtools.segmentation as ngt
 import numpy as np
+import pytest
 
 
 # TODO: Update test outputs
@@ -20,8 +21,16 @@ ngs = []
 
 def test_init():
     global ngs
+
+    # test error catching
+    with pytest.raises(OSError):
+        ngs = ngt.Segmentador("data/sample_images/experiment7", outdir="data/sample_output", analyse_all=True)
+        ngs = ngt.Segmentador("data/sample_images", outdir="data/sample_output", analyse_all=True)
+
     ngs = ngt.Segmentador("data/sample_images/experiment2", outdir="data/sample_output", analyse_all=True)
     custom_assert(ngs.path_save, 'data/sample_output/experiment2/out_ng', "Set output dir")
+
+
 
 
 def test_get_file_name():
