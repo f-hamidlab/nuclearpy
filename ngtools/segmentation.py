@@ -1143,7 +1143,7 @@ class Segmentador(object):
                 while new_files not in files:
                     new_files = input("\nEnter name of file to analyse: ")
 
-        print("Files to be analysed:")
+        print("Files imported:")
         for file in files:
             _file = file.replace(self.image_format, "")
             self.data["files"][_file] = {}
