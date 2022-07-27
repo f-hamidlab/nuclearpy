@@ -5,7 +5,7 @@ import pandas as pd
 
 
 def runNGS(dir, channels, dnamarker="dapi",
-           informat=".czi", segmethod="cellpose", useGPU=True,
+           segmethod="cellpose", useGPU=True,
            xscale=0.454, yscale=0.454, outdir=None, channelsinname=False, collate=False):
     """
     A wrapper to perform segmentation on all images for each experiment
@@ -46,13 +46,13 @@ def runNGS(dir, channels, dnamarker="dapi",
 
     """
 
-    dirs = [dp for dp, dn, filenames in walk(dir) for f in filenames if
-            splitext(f)[1] == informat]
+    dirs = list(set([dp for dp, dn, filenames in walk(dir) for f in filenames if
+            splitext(f)[1] in [".lsm",".czi", ".tiff",".tif"]]))
 
     for thisdir in dirs:
         print(thisdir)
         try:
-            ngs = ngt.NuclearGame_Segmentation(thisdir, outdir)
+            ngs = ngt.Segmentador(thisdir, outdir=outdir, analyse_all=True, resolution=[xscale,yscale])
         except NotADirectoryError:
             print(f"Directory {thisdir} does not exists")
         except ValueError:
@@ -60,9 +60,7 @@ def runNGS(dir, channels, dnamarker="dapi",
             continue
         if channelsinname:
             channels = thisdir.split("_")[1].split(",")
-        ngs.get_file_name(_format=informat, getall=True)
-        ngs.read_files()
-        ngs.identify_channels(channels=channels, marker=dnamarker)
+        ngs.set_channels(channels=channels, marker=dnamarker)
         ngs.nuclear_segmentation(method=segmethod, diameter=30, gamma_corr=True, gamma=0.25, dc_scaleCorr=1.9,
                                  GPU=useGPU)
         ngs.nuclear_features(xscale, yscale)
@@ -70,7 +68,7 @@ def runNGS(dir, channels, dnamarker="dapi",
         ngs.find_dna_peaks(box_size=10, zoom_box_size=200)
         ngs.find_dna_dots(zoom_box_size=200)
         ngs.spatial_entropy(d=5, zoom_box_size=200)
-        ngs.markerGroup(n_groups=5, sample_size=10)
+        ngs.markerGroup(n_groups=5)
         ngs.saveArrays()
         ngs.saveChannelInfo()
         ngs.export_csv(filename="output.csv")
