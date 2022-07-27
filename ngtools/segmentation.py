@@ -1206,13 +1206,9 @@ class Segmentador(object):
                         for n, channel in enumerate(self.data["files"][file]['metadata']['Channels']):
                             self.data["channels_info"][input(f"Insert name of marker in channel {channel}: ")] = n
 
-
-                while True:
+                self.data["dna_marker"] = ""
+                while self.data["dna_marker"] not in list(self.data['channels_info'].keys()):
                     self.data["dna_marker"] = input(f"\nWhich marker is the DNA marker (nuclear staining) ({'/'.join(self.data['channels_info'].keys())})? ")
-                    if self.data["dna_marker"] in list(self.data['channels_info'].keys()):
-                        break
-                    else:
-                        print(f"{self.data['dna_marker']} is not in the list of markers! Try again...")
 
             elif self.image_format == ".tiff" or self.image_format == ".tif":
                 pass
