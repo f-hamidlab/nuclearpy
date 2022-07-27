@@ -29,13 +29,6 @@ def test_init():
 
     ngs = ngt.Segmentador("data/sample_images/experiment2", outdir="data/sample_output", analyse_all=True)
     custom_assert(ngs.path_save, 'data/sample_output/experiment2/out_ng', "Set output dir")
-
-
-
-
-def test_get_file_name():
-    ngs.get_file_name(_format=".czi", getall=True)
-
     custom_assert(ngs.image_format, '.czi', "Setting image format")
     custom_assert(len(ngs.data["files"]), 1, "Get number of images")
     custom_assert(ngs.data["files"]["Snap-120"]["path"], 'data/sample_images/experiment2/Snap-120.czi',

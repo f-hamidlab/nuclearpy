@@ -1075,7 +1075,7 @@ def removenuclei(masks):
 
 class Segmentador(object):
 
-    def __init__(self, indir, outdir=None):
+    def __init__(self, indir, outdir=None, analyse_all=False):
         """
         Initialise object
         Parameters
@@ -1090,30 +1090,65 @@ class Segmentador(object):
         None.
 
         """
-
-        self.path_read = os.path.normpath(indir)
-
-
         # TODO: add compatibility to more formats.
         formats = [".czi",
-                   #".tiff",
-                   #".tif"
+                   # ".tiff",
+                   # ".tif"
                    ]
 
-        print("WARNING... In this version (v0.1.2) only CZI files are supported (Note: Z-Stack and time lapse are not currently supported)")
+        # save input dir to obj if indir exists
+        indir = os.path.normpath(indir)
+        if os.path.exists(indir):
+            self.path_read = indir
+        else:
+            raise OSError(f"{indir} does not exists")
 
-        # Generate dictionary that will contain all the generated data
+        # automatically detect supported file types
+        extensions = list(set([os.path.splitext(f)[1] for f in listdir(self.path_read) if isfile(join(self.path_read, f))]))
+        if any(x in formats for x in extensions):
+            extensions = np.array(extensions)[[x in formats for x in extensions]]  # remove unsupported file types
+            # set image_format if there is only 1 extension type
+            if len(extensions) == 1:
+                self.image_format = extensions[0]
+            elif len(extensions) > 1:
+                format_input = ""
+                while format_input not in formats:
+                    format_input = input(f'Multiple image formats found, please input format to analyze ({"/ ".join(extensions)}): ')
+                self.image_format = format_input
+        else:
+            raise OSError(f"{indir} does not contain any supported image files")
+
+
+        # Create data slot of dict datatype
         self.data = {}
         self.data["files"] = {}
 
-        files = [f for f in listdir(self.path_read) if isfile(join(self.path_read, f))]
+        # get all supported files
+        files = [f for f in listdir(self.path_read) if
+                 isfile(join(self.path_read, f)) and f.lower().endswith(self.image_format)]
 
-        # check if folder contain correct file formats
-        ext_list = [os.path.splitext(f)[1] for f in files]
-        if not any(f in ext_list for f in formats):
-            raise ValueError("Ops... No valid format found in the given path!")
+        # subset files based on user requirements
+        if analyse_all == False:
+            no_files = ""
+            while no_files not in ["all", "one"]:
+                no_files = input(f'Analyse all ({len(files)}) {self.image_format} files or select one (all/one)? ').lower()
 
-        # Creat out folder in the same path
+            if no_files == "one":
+                print("\n".join(files))
+                new_files = ""
+
+                while new_files not in files:
+                    new_files = input("\nEnter name of file to analyse: ")
+
+        print("Files to be analysed:")
+        for file in files:
+            _file = file.replace(self.image_format, "")
+            self.data["files"][_file] = {}
+            self.data["files"][_file]["path"] = join(self.path_read, file)
+            print(f"\t{_file}", f"(format: {self.image_format.upper()})")
+
+
+        # Creat out folder in the same path, and increase out_ng suffix to prevent overwrite
         outdir = indir if outdir is None else join(outdir, os.path.basename(indir))
         self.path_save = join(outdir, 'out_ng')
         if os.path.isdir(self.path_save):
@@ -1121,54 +1156,6 @@ class Segmentador(object):
             while os.path.isdir(self.path_save):
                 self.path_save = join(outdir, f'out_ng ({n})')
                 n += 1
-
-
-    # TODO: Combine get_file_name and read_files
-    def get_file_name(self, _format = ".czi", getall = False):
-        """
-        Gets the file names in a given path.
-        Parameters
-        ----------
-        _format : string
-                Is the format of the files that will be analysed
-
-        Returns
-        -------
-        None.
-
-        """
-
-        self.image_format = _format
-
-        files = [f for f in listdir(self.path_read) if isfile(join(self.path_read, f)) and f.lower().endswith(self.image_format)]
-
-        if getall == False:
-            while True:
-                no_files = input(f'\nAnalyse all ({len(files)}) {self.image_format} files or select one (all/one)? ')
-                if no_files.lower() == "all" or no_files.lower() == "one":
-                    break
-                else:
-                    print(f"The input {no_files} is not valid, try again...")
-
-
-            if no_files.lower() == "one":
-                print("\n")
-                for file in files:
-                    print(file)
-                while True:
-                    new_files = input("\nEnter name of file to analyse: ")
-                    if new_files in files:
-                        files = [new_files]
-                        break
-                    else:
-                        print(f"The given file name '{new_files}' is not valid, try again...")
-
-            print("\nFiles to be analysed: \n")
-        for file in files:
-            _file = file.replace(self.image_format, "")
-            self.data["files"][_file] = {}
-            self.data["files"][_file]["path"] = join(self.path_read, file)
-            print(f"\t{_file}", f"(format: {self.image_format.upper()})")
 
 
     def read_files(self):
