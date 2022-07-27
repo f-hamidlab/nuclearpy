@@ -553,7 +553,7 @@ class Analyzor(object):
         """
         dat = self.data[data_type]
         if vars != None:
-            if vars not in list(dat):
+            if any(x not in list(dat) for x in vars):
                 missingvars = list(set(vars) - set(list(dat)))
                 raise ValueError(f"Variable(s) `{missingvars}` not found")
             else:
@@ -587,7 +587,7 @@ class Analyzor(object):
 
         """
         dat = self.data['raw']
-        if vars not in list(dat):
+        if any(x not in list(dat) for x in vars):
             missingvars = list(set(vars) - set(list(dat)))
             raise ValueError(f"Variable(s) `{missingvars}` not found")
         return dat[vars].value_counts()
