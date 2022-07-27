@@ -1307,10 +1307,6 @@ class Segmentador(object):
                     self.data["channels_info"][self.data["dna_marker"]]].copy()
                 self.data["files"][file]["th_array"] = get_th_array(self.data["files"][file]["masks"], nucleus)
 
- 
-
-
-
         elif method.lower() == "deepcell":
             self.check_pxScale()
             self.seg_method = "deepcell"
@@ -1329,11 +1325,6 @@ class Segmentador(object):
                 nucleus = self.data["files"][file]['working_array'][
                     self.data["channels_info"][self.data["dna_marker"]]].copy()
                 self.data["files"][file]["th_array"] = get_th_array(self.data["files"][file]["masks"], nucleus)
-
-
-
-
-
 
     def show_segmentation(self, file):
         """
