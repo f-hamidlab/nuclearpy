@@ -239,7 +239,8 @@ def show_cell(data, order_by="areaNucleus", fig_height=15, fig_width=40, show_nu
         color_green = Image.fromarray(np.zeros((y, x, 3), dtype='uint8')).convert('L')
         color_blue = Image.fromarray(np.zeros((y, x, 3), dtype='uint8')).convert('L')
         img_chan = chinfo[row['experiment']]
-        for col,ch in dct_colors.items():
+        subset_dct_colors = dict(filter(lambda elem: elem[1] in list(img_chan), dct_colors.items()))
+        for col,ch in subset_dct_colors.items():
             channel = wk_array[img_chan[ch]].copy()
             channel = channel[cY_low:cY_high, cX_low:cX_high]
             channel = cv2.normalize(channel, None, 0, 255, cv2.NORM_MINMAX, cv2.CV_8U)
