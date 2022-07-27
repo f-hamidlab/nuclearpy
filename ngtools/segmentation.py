@@ -42,10 +42,49 @@ from spatialentropy import leibovici_entropy
 from sklearn.cluster import KMeans
 #from deepcell.applications import NuclearSegmentation
 from scipy import stats
+import tifffile as tiff
 
 #############################################
 #     Functions & Classes | Segmentation    #
 #############################################
+
+def get_array_tiff(file, ext = None, stackcompression = "max"):
+
+    metadata = {'Channels': [],
+                'Axes': "TIFF",
+                'XScale': 0,
+                'YScale': 0}
+
+    # import tiff and metadata
+    tiffarray = tiff.imread(file)
+    tiffmeta = tiff.TiffFile(file)
+
+    # check shape
+    ## if it is a z-stack, get mean or max
+    if len(tiffarray.shape) == 4:
+        if stackcompression == "max":
+            tiffarray = np.max(tiffarray, axis=0)
+        elif stackcompression == "mean":
+            tiffarray = np.mean(tiffarray, axis=0)
+
+    # force correct datatype
+    tiffarray = np.array(tiffarray, dtype = "uint16")
+
+    # get required metadata
+    if ext == ".lsm":
+        metadata["XScale"] = tiffmeta.pages[0].tags[34412].value['VoxelSizeX']*1000000
+        metadata["YScale"] = tiffmeta.pages[0].tags[34412].value['VoxelSizeY']*1000000
+        metadata["Channels"] = tiffmeta.pages[0].tags[34412].value['ChannelColors']['ColorNames']
+    elif ext in [".tiff","tiff"]:
+        xscale = tiffmeta.pages[0].tags[282].value[1]/tiffmeta.pages[0].tags[282].value[0]
+        yscale = tiffmeta.pages[0].tags[283].value[1] / tiffmeta.pages[0].tags[283].value[0]
+        metadata["XScale"] = xscale
+        metadata["YScale"] = yscale
+        metadata["Channels"] = list(range(len(tiffarray.shape)))
+    metadata["XScale"] = round(metadata["XScale"], 3)
+    metadata["YScale"] = round(metadata["YScale"], 3)
+
+    return tiffarray, metadata
 
 
 def get_array_czi(
@@ -585,6 +624,9 @@ def wk_array(array, axes):
     elif axes == 'YX' or axes == 'XY':
         working_array = array
 
+    elif axes == 'TIFF':
+        working_array = array
+
     #elif axes == 'BVCTZYX0':
     #    working_array = array[0,0,:,0,0,:,:]
 
@@ -1095,10 +1137,7 @@ class Segmentador(object):
 
         """
         # TODO: add compatibility to more formats.
-        formats = [".czi",
-                   # ".tiff",
-                   # ".tif"
-                   ]
+        formats = [".czi", ".tiff", ".tif", ".lsm"]
 
         # save input dir to obj if indir exists
         indir = os.path.normpath(indir)
@@ -1157,8 +1196,17 @@ class Segmentador(object):
                 self.data["files"][_file]["metadata"] = metadata
                 # self.data["files"][_file]["add_metadata"] = moremetadata
             # TODO: support TIFF files
-            elif self.image_format == ".tiff" or self.image_format == ".tif":
-                pass
+            elif self.image_format in ['.tiff','.tif','.lsm']:
+                array, metadata = get_array_tiff(file=self.data["files"][_file]["path"], ext = self.image_format)
+                self.data["files"][_file]["array"] = array
+                self.data["files"][_file]["metadata"] = metadata
+        if resolution == None:
+            self.check_pxScale()
+        elif len(resolution)==2:
+            self.check_pxScale(resolution[0], resolution[1])
+        else:
+            self.check_pxScale()
+
 
         # Creat out folder in the same path, and increase out_ng suffix to prevent overwrite
         outdir = indir if outdir is None else join(outdir, os.path.basename(indir))
@@ -1189,29 +1237,26 @@ class Segmentador(object):
 
 
         if channels == None:
-            if self.image_format == ".czi":
-                if len(self.data["files"]) > 1:
-                    lsts_ch = [self.data["files"][file]['metadata']['Channels'] for file in self.data["files"]]
-                    test_ch = check_channels(lsts_ch)
-                    if test_ch == False:
-                        raise ValueError("Channels of files are different!")
-                    else:
-                        self.data["channels_info"] = {}
-                        for n, channel in enumerate(lsts_ch[0]):
-                            marker = input(f"Insert name of marker in channel {channel}: ")
-                            self.data["channels_info"][marker] = n
-                elif len(self.data["files"]) == 1:
+            if len(self.data["files"]) > 1:
+                lsts_ch = [self.data["files"][file]['metadata']['Channels'] for file in self.data["files"]]
+                test_ch = check_channels(lsts_ch)
+                if test_ch == False:
+                    raise ValueError("Channels of files are different!")
+                else:
                     self.data["channels_info"] = {}
-                    for file in self.data["files"]:
-                        for n, channel in enumerate(self.data["files"][file]['metadata']['Channels']):
-                            self.data["channels_info"][input(f"Insert name of marker in channel {channel}: ")] = n
+                    for n, channel in enumerate(lsts_ch[0]):
+                        marker = input(f"Insert name of marker in channel {channel}: ")
+                        self.data["channels_info"][marker] = n
+            elif len(self.data["files"]) == 1:
+                self.data["channels_info"] = {}
+                for file in self.data["files"]:
+                    for n, channel in enumerate(self.data["files"][file]['metadata']['Channels']):
+                        self.data["channels_info"][input(f"Insert name of marker in channel {channel}: ")] = n
 
-                self.data["dna_marker"] = ""
-                while self.data["dna_marker"] not in list(self.data['channels_info'].keys()):
-                    self.data["dna_marker"] = input(f"\nWhich marker is the DNA marker (nuclear staining) ({'/'.join(self.data['channels_info'].keys())})? ")
+            self.data["dna_marker"] = ""
+            while self.data["dna_marker"] not in list(self.data['channels_info'].keys()):
+                self.data["dna_marker"] = input(f"\nWhich marker is the DNA marker (nuclear staining) ({'/'.join(self.data['channels_info'].keys())})? ")
 
-            elif self.image_format == ".tiff" or self.image_format == ".tif":
-                pass
         else:
             # check length of input
             firstfile = list(self.data["files"])[0]
