@@ -1077,12 +1077,13 @@ class Segmentador(object):
 
     def __init__(self, indir, outdir=None):
         """
-        Start Nuclear Game.
+        Initialise object
         Parameters
         ----------
         indir : string
-            Is the path to the folder where all the microscope images that will be analysed
-            are found.
+            Path to experiment directory containing image file(s)
+        indir : string
+            Path to output directory. If None, indir will be set as the output directory.
 
         Returns
         -------
