@@ -1150,6 +1150,14 @@ class Segmentador(object):
             self.data["files"][_file]["path"] = join(self.path_read, file)
             print(f"\t{_file}", f"(format: {self.image_format.upper()})")
 
+            if self.image_format == ".czi":
+                array, metadata, moremetadata = get_array_czi(filename=self.data["files"][_file]["path"])
+                self.data["files"][_file]["array"] = array
+                self.data["files"][_file]["metadata"] = metadata
+                self.data["files"][_file]["add_metadata"] = moremetadata
+            # TODO: support TIFF files
+            elif self.image_format == ".tiff" or self.image_format == ".tif":
+                pass
 
         # Creat out folder in the same path, and increase out_ng suffix to prevent overwrite
         outdir = indir if outdir is None else join(outdir, os.path.basename(indir))
@@ -1159,25 +1167,6 @@ class Segmentador(object):
             while os.path.isdir(self.path_save):
                 self.path_save = join(outdir, f'out_ng ({n})')
                 n += 1
-
-
-    def read_files(self):
-        """
-        Reads every file, generates arrays, and obtains metadata
-
-        Returns
-        -------
-        None.
-
-        """
-
-        if self.image_format == ".czi":
-            for file in self.data["files"]:
-                self.data["files"][file]["array"], self.data["files"][file]["metadata"], self.data["files"][file]["add_metadata"] = get_array_czi(filename = self.data["files"][file]["path"])
-
-        # TODO: support TIFF files
-        elif self.image_format == ".tiff" or self.image_format == ".tif":
-            pass
 
 
     def identify_channels(self, channels = None, marker = None):
