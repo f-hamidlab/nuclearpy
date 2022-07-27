@@ -688,7 +688,10 @@ class Analyzor(object):
 
         """
         if channel == None:
-            channel = list(self.meta['channels'][list(self.meta['channels'])[0]])[0]
+            if len(self.meta) > 0:
+                channel = list(self.meta['channels'][list(self.meta['channels'])[0]])[0]
+            else:
+                channel = input("Please specify nuclear marker : ")
 
         print(f"Using {channel} channel for qualifying single cells")
         ss_array = find_SingleCells(self.data['raw'], byExperiment, nbins, spread, channel)
