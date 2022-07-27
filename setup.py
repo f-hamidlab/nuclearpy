@@ -26,7 +26,7 @@ REQUIRED = [
     'scikit-image','plotly','tqdm','opencv-python','pandas',
     'photutils','astropy','spatialentropy','scikit-learn',
     'umap-learn','Pillow','scipy','seaborn', 'anndata','scanpy',
-    'statannotations', 'matplotlib_scalebar', 'leidenalg'
+    'statannotations', 'matplotlib_scalebar', 'leidenalg', 'tifffile'
 ]
 
 # What packages are optional?
