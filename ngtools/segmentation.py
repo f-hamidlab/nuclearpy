@@ -1172,13 +1172,21 @@ class Segmentador(object):
 
     def identify_channels(self, channels = None, marker = None):
         """
-        Assign a name to each channel
+        Assign channel identity
+
+        Parameters
+        ----------
+        channels : str list
+            List of names of each channel in order. If None, function will request user input
+        marker : string
+            Name of nuclear marker
 
         Returns
         -------
         None.
 
         """
+
 
         if channels == None:
             if self.image_format == ".czi":
