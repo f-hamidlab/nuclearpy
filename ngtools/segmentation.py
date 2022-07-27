@@ -1209,6 +1209,16 @@ class Segmentador(object):
             elif self.image_format == ".tiff" or self.image_format == ".tif":
                 pass
         else:
+            # check length of input
+            firstfile = list(self.data["files"])[0]
+            expected_length = len(self.data["files"][firstfile]['metadata']['Channels'])
+            if len(channels) != expected_length:
+                raise ValueError(f"{len(channels)} channels given when image has {expected_length}")
+
+            # check marker input
+            if marker not in channels:
+                raise ValueError(f"Nuclear marker `{marker}` not found in given channels")
+
             self.data["channels_info"] = {}
             for n, channel in enumerate(channels):
                 self.data["channels_info"][channel] = n
