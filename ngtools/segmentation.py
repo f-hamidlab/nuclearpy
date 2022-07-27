@@ -1274,7 +1274,7 @@ class Segmentador(object):
                 self.data["dna_marker"] = marker
 
 
-    def nuclear_segmentation(self, method = "cellpose", diameter = None, gamma_corr = False, gamma = 0.25, dc_scaleCorr = None, GPU = False):
+    def nuclear_segmentation(self, method = "cellpose", diameter = None, gamma_corr = None, dc_scaleCorr = None, GPU = False):
         """
         Perform nuclear segmentation.
 
@@ -1297,8 +1297,8 @@ class Segmentador(object):
                                                                      self.data["files"][file]['metadata']['Axes'])
 
                 nuclei = self.data["files"][file]['working_array'][self.data["channels_info"][self.data["dna_marker"]]].copy()
-                if gamma_corr:
-                    nuclei = gammaCorrection(img = nuclei, gamma = gamma)
+                if gamma_corr is not None:
+                    nuclei = gammaCorrection(img = nuclei, gamma = gamma_corr)
                 self.data["files"][file]["masks"], self.data["files"][file]["flows"] = _cellpose(nuclei,
                                                                                      diameter = diameter,
                                                                                        GPU = GPU)
@@ -1315,8 +1315,8 @@ class Segmentador(object):
                                                                      self.data["files"][file]['metadata']['Axes'])
 
                 nuclei = self.data["files"][file]['working_array'][self.data["channels_info"][self.data["dna_marker"]]].copy()
-                if gamma_corr:
-                    nuclei = gammaCorrection(img = nuclei, gamma = gamma)
+                if gamma_corr is not None:
+                    nuclei = gammaCorrection(img = nuclei, gamma = gamma_corr)
                 if dc_scaleCorr == None:
                     dc_scaleCorr = 1
                 self.data["files"][file]["masks"] = _deepcell(image = nuclei,
