@@ -34,15 +34,22 @@ def test_init():
     custom_assert(len(ngs.data["files"]), 1, "Get number of images")
     custom_assert(ngs.data["files"]["Snap-120"]["path"], 'data/sample_images/experiment2/Snap-120.czi',
                   "Get path to image file")
+    # TODO: test important variables
 
+    custom_assert(len(ngs.data["files"][file]), 3, "Get new number of keys")
 
 def test_read_files():
     file = "Snap-120"
     ngs.read_files()
 
-    # TODO: test important variables
+# def test_read_files():
+#     file = "Snap-120"
+#     ngs.read_files()
+#
+#     # TODO: test important variables
+#
+#     custom_assert(len(ngs.data["files"][file]), 4, "Get new number of keys")
 
-    custom_assert(len(ngs.data["files"][file]), 4, "Get new number of keys")
 
 def test_set_channels():
     with pytest.raises(ValueError):
