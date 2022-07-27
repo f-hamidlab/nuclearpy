@@ -470,13 +470,13 @@ class Analyzor(object):
         Parameters
         ----------
         exp_dir : string
-            Path to directory containing segmented output. Function will recursively import files named
-            "output.csv" [Default] and combine them.
-        csv : string
-            Optional- Path to collated CSV file. Useful when users have manually modified the collated output of
-            Segmentador and wish to use it instead.
-        filename : string
-            Name of CSV file exported from Segmentador. Only files with this name will be imported.
+            Path to directory containing segmented output. Will recursively import files containing
+            `pattern` in its name and combines them.
+        pattern : string
+            Pattern of file name to import.
+        collated_csv : string
+            Optional- Path to collated CSV file. Useful when users have created a collated output of
+            Segmentador and wish to use that instead.
 
         Returns
         -------
@@ -537,10 +537,11 @@ class Analyzor(object):
 
         Parameters
         ----------
-        data_type : string
-            Type of data to show. Can be 'raw' (default) or 'norm'.
         vars : string or list of strings
             Name of features to display. Name should be found in dataframe.
+        data_type : string
+            Type of data to show. Can be 'raw' (default) or 'norm'.
+
 
         Returns
         -------
@@ -624,16 +625,23 @@ class Analyzor(object):
     def normChannel(self, channel, intensity_type = "total",
                 splitBy = "experiment", method = "mode", nbins = 100, showPlot = True):
         """
-        Centralize DAPI intensity ....
+        Normalise DAPI/ICC channels
 
         Parameters
         ----------
-        splitBy : string
-            Name of feature to
+        channel : str
+            Name of channel to normalise. Value has to be found in experiment
+        intensity_type : str
+            Type of intensity to normalise. Can be total or avg
+        splitBy : str
+            Name of feature to group the cells by for normalisation (Default: experiment)
+        method : str
+            Method to normalise values. Can be "mode", "median" or "mean"
         nbins : int
-            Number of bins...
+            Number of bins to split the intensity distribution to calculate mode. Ignored if
+            `Method` is not "mode"
         showPlot : bool
-            Whether to display....
+            Whether to display a violin plot of the pre-normalised intensity distribution
 
         Returns
         -------
