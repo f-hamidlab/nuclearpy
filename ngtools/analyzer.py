@@ -651,9 +651,20 @@ class Analyzor(object):
         None.
 
         """
+
+        # check if input channel is in experiment
         column = f"{intensity_type}_intensity_{channel}"
-        self.data['norm'][column] = norm_channels(self.data['raw'], channel, intensity_type, splitBy, method, nbins, showPlot)
-        self.updateAData()
+        if column in list(self.data['norm']):
+            self.data['norm'][column] = norm_channels(self.data['raw'], channel, intensity_type, splitBy, method, nbins,
+                                                      showPlot)
+            self.updateAData()
+        elif intensity_type not in ["total","avg"]:
+            raise ValueError(f"`intensity_type` arguments have to be 'total' or 'avg'")
+        else:
+            raise ValueError(f"Channel `{channel}` not in experiment")
+
+
+
 
     def findSingleCells(self, byExperiment = True, nbins = 100, spread = 0.4, channel = None):
         """
