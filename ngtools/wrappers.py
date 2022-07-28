@@ -3,7 +3,7 @@ from os import walk
 from os.path import splitext, join, basename
 import pandas as pd
 
-
+# TODO: raise error if no experiment is found
 def batch_Segmentador(dir, channels = None, dnamarker="dapi",
            segmethod="cellpose", useGPU=True,
            xscale=0.454, yscale=0.454, outdir=None, channelsinname=False, collate=False):
