@@ -573,7 +573,7 @@ class Analyzor(object):
         """
         return self.data['raw'].columns.to_list()
 
-    def count(self, vars):
+    def count(self, vars, sort = False):
         """
         Counts the number of observations for a (group of) variables.
 
@@ -591,7 +591,7 @@ class Analyzor(object):
         if any(x not in list(dat) for x in vars):
             missingvars = list(set(vars) - set(list(dat)))
             raise ValueError(f"Variable(s) `{missingvars}` not found")
-        return dat[vars].value_counts()
+        return dat[vars].value_counts(sort = sort)
 
     def shape(self):
         """

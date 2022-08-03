@@ -80,7 +80,7 @@ def get_array_tiff(file, ext = None, stackcompression = "max"):
         yscale = tiffmeta.pages[0].tags[283].value[1] / tiffmeta.pages[0].tags[283].value[0]
         metadata["XScale"] = xscale
         metadata["YScale"] = yscale
-        metadata["Channels"] = list(range(len(tiffarray.shape)))
+        metadata["Channels"] = list(range(tiffarray.shape[0]))
     metadata["XScale"] = round(metadata["XScale"], 3)
     metadata["YScale"] = round(metadata["YScale"], 3)
 
