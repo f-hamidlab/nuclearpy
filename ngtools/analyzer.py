@@ -980,7 +980,7 @@ class Analyzor(object):
 
         # get numerical var from data
         dat_vars = self.data['norm'].copy()
-        dat_vars = dat_vars.select_dtypes(include=['float64', 'int64'])
+        dat_vars = dat_vars.select_dtypes(include=['float64', 'int64', 'float32'])
         dat_vars = dat_vars.drop(columns=to_drop)
 
         # get obs data
@@ -1095,7 +1095,9 @@ class Analyzor(object):
             name = method
 
         self.data['raw'][name] = self.adata.obs[method].to_list()
+        self.data['raw'] = self.data['raw'].astype({name: 'int'})
         self.data['norm'][name] = self.adata.obs[method].to_list()
+        self.data['norm'] = self.data['norm'].astype({name: 'int'})
 
     def runDimReduc(self, method = "umap"):
         """
