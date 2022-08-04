@@ -525,6 +525,7 @@ class Analyzor(object):
         self.normAData()
 
     def excludeVars(self, vars):
+        # TODO: allow pattern regex
         self.excfeat = vars
         self.excfeat = list(set(self.excfeat))
         self.updateAData()
