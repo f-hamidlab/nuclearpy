@@ -973,15 +973,17 @@ class Analyzor(object):
 
          """
 
-        to_drop = ['cellID', 'x_pos', 'y_pos', 'angle','leiden',
-                   'umap_1','umap_2','diffmap_1','diffmap_2','louvain']
-        to_drop = [x for x in to_drop if x in list(self.data['norm'])]
-        to_drop.extend(list(x for x in list(self.data['norm']) if x.endswith('_group')))
-        to_drop.extend(excluded_features)
-
         # get numerical var from data
         dat_vars = self.data['norm'].copy()
         dat_vars = dat_vars.select_dtypes(include=['float64', 'int64', 'float32'])
+
+        # prep vars to drop
+        to_drop = ['cellID', 'x_pos', 'y_pos', 'angle','leiden',
+                   'umap_1','umap_2','diffmap_1','diffmap_2','louvain']
+        to_drop = [x for x in to_drop if x in list(dat_vars)]
+        to_drop.extend(list(x for x in list(dat_vars) if x.endswith('_group')))
+        to_drop.extend(x for x in excluded_features if x in list(dat_vars))
+
         dat_vars = dat_vars.drop(columns=to_drop)
 
         # get obs data
