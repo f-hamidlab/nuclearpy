@@ -1025,7 +1025,7 @@ class Analyzor(object):
          None.
 
          """
-        print(self.adata)
+        return self.adata
 
     def showADataVars(self):
         """
@@ -1036,7 +1036,7 @@ class Analyzor(object):
          None.
 
          """
-        print(self.adata.var_names.to_list())
+        return self.adata.var_names.to_list()
 
     def showADataObs(self):
         """
@@ -1048,7 +1048,7 @@ class Analyzor(object):
          None.
 
          """
-        print(self.adata.obs.columns.to_list())
+        return self.adata.obs.columns.to_list()
 
 
     def findNeighbours(self, method = "umap", n = 30, use_rep = "X"):
