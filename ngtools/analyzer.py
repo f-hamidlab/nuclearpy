@@ -145,45 +145,35 @@ def show_cell(data, order_by="areaNucleus", fig_height=15, fig_width=40, show_nu
               RGB_contrasts=[3,3,4], uniqID=False, channels=None, n = None, chinfo=None, asc = True, cells = None):
     df = data.copy()
 
-    if cells == None:
-        # Ask for the number of cells to show if not provided
-        if n == None:
-            while True:
-                no_cells = input('\nEnter number of nuclei to show (any integer OR "all"): ')
-                try:
-                    no_cells = int(no_cells)
-                    break
-                except:
-                    if isinstance(no_cells, str):
-                        if no_cells.lower() == 'all':
-                            no_cells = len(df)
-                            break
-                    else:
-                        print('Ops! Invalid number format! Enter an integer or "all"')
-        else:
-            no_cells = n
+    # Ask for the number of cells to show if not provided
+    if n == None:
+        while True:
+            no_cells = input('\nEnter number of nuclei to show (any integer OR "all"): ')
+            try:
+                no_cells = int(no_cells)
+                break
+            except:
+                if isinstance(no_cells, str):
+                    if no_cells.lower() == 'all':
+                        no_cells = len(df)
+                        break
+                else:
+                    print('Ops! Invalid number format! Enter an integer or "all"')
+    else:
+        no_cells = n
 
-        if len(df) == no_cells:
-            print(f"\nShowing all cells ({len(df)}) in the selected area")
+    if len(df) == no_cells:
+        print(f"\nShowing all cells ({len(df)}) in the selected area")
 
-        if len(df) > no_cells:
-            print('\nShowing {0} cells of a total of {1} in the selected data'.format(no_cells, str(len(df))))
+    if len(df) > no_cells:
+        print('\nShowing {0} cells of a total of {1} in the selected data'.format(no_cells, str(len(df))))
 
-        if len(df) < no_cells:
-            no_cells = len(df)
-            print('\nONLY ' + str(len(df)) + ' cells were found in the selected data')
+    if len(df) < no_cells:
+        no_cells = len(df)
+        print('\nONLY ' + str(len(df)) + ' cells were found in the selected data')
 
-        # sample cells
-        new_df = df.sample(n=no_cells)
-    elif type(cells)==dict:
-        cells = cells["cells"]
-        cells = np.array(cells)[[x in df.index for x in cells]]
-        new_df = df.loc[cells,]
-        no_cells = len(cells)
-    elif type(cells)==list:
-        cells = np.array(cells)[[x in df.index for x in cells]]
-        new_df = df.loc[cells,]
-        no_cells = len(cells)
+    # sample cells
+    new_df = df.sample(n=no_cells)
 
 
     if order_by is not None:
@@ -700,8 +690,8 @@ class Analyzor(object):
         self.data['norm']['isSingleCell'] = ss_array
         self.updateAData()
 
-    def showCells(self, n=None, cells = None, ch2show=None, order_by=None, ascending = True, fig_height=15, fig_width=20, show_nucleus=True,
-                 RGB_contrasts=[3,3,4], uniqID=False, filter = None):
+    def showCells(self, n=None, ch2show=None, order_by=None, ascending = True, fig_height=15, fig_width=20, show_nucleus=True,
+                 RGB_contrasts=[3,3,4], uniqID=False, cells = None, filter = None):
         """
         Display image of cells
 
@@ -724,6 +714,13 @@ class Analyzor(object):
             A list containing 3 integers corresponding to contrast values for Red, Green and Blue channels
         uniqID : bool
             Whether to assign unique ID for each cell
+        cells : dict or str list
+            Filter object by cell names. Input can be a list of cell names, or a dict output
+            from `chooseCells()`
+        filter : string or bool list
+             Can be a string that describes the logical expression to filter cells by. E.g.
+             "nuclear_area > 50" or "experiment == 'induced'". Can also be a list of boolean
+             of length similar to the number of cells in object
 
         Returns
         -------
@@ -732,10 +729,20 @@ class Analyzor(object):
         """
 
         obj = self.copy()
+        df = obj.data['norm']
+
+        if type(cells) == dict:
+            cells = cells["cells"]
+            cells = np.array(cells)[[x in df.index for x in cells]]
+            df = df.loc[cells,]
+        elif type(cells) == list:
+            cells = np.array(cells)[[x in df.index for x in cells]]
+            df = df.loc[cells,]
+
         if type(filter) is str:
             obj.filterCells(filter = filter)
 
-        show_cell(obj.data['raw'], order_by, fig_height, fig_width, show_nucleus, RGB_contrasts, uniqID, ch2show, n,
+        show_cell(df, order_by, fig_height, fig_width, show_nucleus, RGB_contrasts, uniqID, ch2show, n,
                   obj.meta['channels'], ascending, cells)
 
     def rename(self, columns):
