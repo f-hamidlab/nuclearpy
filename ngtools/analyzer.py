@@ -881,9 +881,9 @@ class Analyzor(object):
              of length similar to the number of cells in object
          data_type : string
              Whether to plot "raw" data or "norm" data
-        cells : string list
+         cells : string list
             Optional: list of string contain index of cells to retain.
-        inplace : bool
+         inplace : bool
             Whether to overwrite object data
 
          Returns
