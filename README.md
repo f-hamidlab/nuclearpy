@@ -1,4 +1,8 @@
-# NG TOOLS
+# NuclearPy
+
+## Overview of NuclearPy
+
+(Describe what NuclearPy does).
 
 ## How to download ngtools
 
@@ -9,9 +13,10 @@ git clone https://github.com/fursham-h/ng_tools.git
 # git clone git@github.com:fursham-h/ng_tools.git
 ```
 
-## To install ngtools
+## How to install ngtools
 ```bash
 cd ng_tools
 pip install .
 ```
 
+## How to run NuclearPy
