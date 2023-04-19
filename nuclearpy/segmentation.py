@@ -52,6 +52,7 @@ def get_array_tiff(file, ext = None, stackcompression = "max"):
 
     metadata = {'Channels': [],
                 'Axes': "TIFF",
+                'ResUnit': 0,
                 'XScale': 0,
                 'YScale': 0}
 
@@ -72,12 +73,21 @@ def get_array_tiff(file, ext = None, stackcompression = "max"):
 
     # get required metadata
     if ext == ".lsm":
-        metadata["XScale"] = tiffmeta.pages[0].tags[34412].value['VoxelSizeX']*1000000
-        metadata["YScale"] = tiffmeta.pages[0].tags[34412].value['VoxelSizeY']*1000000
+        lsm_meta = tiffmeta.pages[0].tags[34412].value
+        metadata["XScale"] = lsm_meta['VoxelSizeX']*1000000
+        metadata["YScale"] = lsm_meta['VoxelSizeY']*1000000
+
+
         metadata["Channels"] = tiffmeta.pages[0].tags[34412].value['ChannelColors']['ColorNames']
     elif ext in [".tiff",".tif"]:
         xscale = tiffmeta.pages[0].tags[282].value[1]/tiffmeta.pages[0].tags[282].value[0]
         yscale = tiffmeta.pages[0].tags[283].value[1] / tiffmeta.pages[0].tags[283].value[0]
+        # detect res unit
+        metadata["ResUnit"] = tiffmeta.pages[0].tags[296].value.name
+        if metadata["ResUnit"] == "CENTIMETER":
+            xscale = xscale*(1000)
+            yscale = yscale * (1000)
+
         metadata["XScale"] = xscale
         metadata["YScale"] = yscale
         metadata["Channels"] = list(range(tiffarray.shape[0]))

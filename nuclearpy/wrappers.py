@@ -1,4 +1,4 @@
-import ngtools.segmentation as ngt
+import nuclearpy.segmentation as ngt
 from os import walk
 from os.path import splitext, join, basename
 import pandas as pd
