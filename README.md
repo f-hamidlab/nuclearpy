@@ -2,9 +2,11 @@
 
 ## Overview of NuclearPy
 
-(Describe what NuclearPy does).
+NuclearPy is a suite of bioinformatics tools for 
+the quantification and analysis of nuclear features from
+high-content imaging data. 
 
-## How to download ngtools
+## How to download NuclearPy
 
 ```bash
 # Using git
@@ -13,7 +15,7 @@ git clone https://github.com/fursham-h/ng_tools.git
 # git clone git@github.com:fursham-h/ng_tools.git
 ```
 
-## How to install ngtools
+## How to install NuclearPy
 ```bash
 cd ng_tools
 pip install .
