@@ -508,16 +508,24 @@ class Analyzor(object):
         self.adata = ""
         self.excfeat = []
         self.buildAData()
-        self.normAData()
+        #self.normAData()
 
     def updateAData(self):
         self.buildAData(self.excfeat)
-        self.normAData()
+        #self.normAData()
 
     def excludeVars(self, vars):
         # TODO: allow pattern regex
         self.excfeat = vars
         self.excfeat = list(set(self.excfeat))
+        self.updateAData()
+
+    def includeVars(self, vars):
+        # TODO: allow pattern regex
+        dat_vars = self.data['norm'].copy()
+        dat_vars = dat_vars.select_dtypes(include=['float64', 'int64', 'float32'])
+        self.excfeat = set(dat_vars) - set(vars)
+        self.excfeat = list(self.excfeat)
         self.updateAData()
 
     def __getitem__(self, key, data_type="norm"):
@@ -1131,10 +1139,10 @@ class Analyzor(object):
             self.data['norm']['umap_2'] = self.adata.obsm['X_umap'][..., 1]
         elif method == "diffmap":
             sc.tl.diffmap(self.adata)
-            self.data['raw']['diffmap_1'] = self.adata.obsm['X_diffmap'][..., 0]
-            self.data['raw']['diffmap_2'] = self.adata.obsm['X_diffmap'][..., 1]
-            self.data['norm']['diffmap_1'] = self.adata.obsm['X_diffmap'][..., 0]
-            self.data['norm']['diffmap_2'] = self.adata.obsm['X_diffmap'][..., 1]
+            self.data['raw']['diffmap_1'] = self.adata.obsm['X_diffmap'][:, 1]
+            self.data['raw']['diffmap_2'] = self.adata.obsm['X_diffmap'][:, 2]
+            self.data['norm']['diffmap_1'] = self.adata.obsm['X_diffmap'][:, 1]
+            self.data['norm']['diffmap_2'] = self.adata.obsm['X_diffmap'][:, 2]
 # TODO: add color_map option
     def plotDim(self, hue = None, method = "umap", vmin = None, vmax = None):
         """
@@ -1157,9 +1165,9 @@ class Analyzor(object):
                        size=30, dimensions = [0,1], vmin = vmin, vmax =vmax
                        )
         elif method == "diffmap":
-            sc.pl.diffmap(self.adata, color=hue, frameon=False, ax=ax, legend_loc="on data",
-                       size=30, dimensions = [0,1]
-                       )
+            self.adata.obsm["X_diffmap_"] = self.adata.obsm["X_diffmap"][:, 1:]
+            sc.pl.embedding(self.adata, "diffmap_",color=hue, frameon=False, ax=ax, legend_loc="on data",
+                            size=30, dimensions=[0, 1])
 
         fig.tight_layout()
         plt.show()
